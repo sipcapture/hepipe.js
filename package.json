@@ -1,0 +1,15 @@
+{
+  "name": "hepipe-js",
+  "description": "HEP Enabled log harvester",
+  "author": "lmangani",
+  "dependencies": {
+    "hep-js": "*"
+  },
+  "scripts": {
+    "start": "node hepipe.js",
+    "forever": "forever start -o ./log/hepipe.log -e ./log/error.log -a --minUptime 1000 --spinSleepTime 3000 ./hepipe.js",
+    "debug": "forever -l ./log/hepipe.log -o ./log/hepipe.log -e ./log/error.log --minUptime 1000 --spinSleepTime 3000 ./hepipe.js",
+    "stop": "forever stopall",
+    "preinstall": "npm install -g forever"
+  }
+}
