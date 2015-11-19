@@ -8,13 +8,7 @@ var logs = _config_.LOGS;
 var version = 'v0.1';
 var debug = false;
 var stats = {rcvd: 0, parsed: 0, hepsent: 0, err: 0, heperr: 0 }; 
-var hep_proto = { "type": "HEP", "version": 3, "payload_type": "JSON", "captureId": _config_.HEP_ID, "capturePass": _config_.HEP_AUTH, "ip_family": 2};
-
-
-	var test = "Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: <script>: Sending reply, fs='udp:127.0.0.1:5060' - ID=11876453@127.0.1.1 TEST";
-	var match = test.match(/ID=([^&]\S*)/)
-	console.log( 'that: '+match[1] );
-
+var hep_proto = { "type": "HEP", "version": 3, "payload_type": "100", "captureId": _config_.HEP_ID, "capturePass": _config_.HEP_AUTH, "ip_family": 2};
 
 // Start watching all files inf config.LOGS array
 for (var i = 0; i < logs.length; i++) {
@@ -47,9 +41,10 @@ function watchFile(logSet){
 }
 
 function readChanges(logSet, from, to){
-  var file = logSet.path
-  var tag = logSet.tag
-  var pattern = logSet.pattern
+  var file = logSet.path;
+  var tag = logSet.tag;
+  var host = logSet.host;
+  var pattern = logSet.pattern;
   var rstream = fs.createReadStream(file, {
     encoding: 'utf8',
     start: from,
@@ -61,28 +56,26 @@ function readChanges(logSet, from, to){
      var cid = data.match(pattern)[1];
      if (cid != undefined) {
 	      // post process string
-	      preHep(tag,data,cid);
+	      preHep(tag,data,cid,host);
      }
     }
   }); 
 }
 
-function preHep(tag,data,cid) {
+function preHep(tag,data,cid,host) {
 
 	console.log('CID: '+cid, 'DATA:'+data);	
 
-/*
 	// Build HEP3
 	hep_proto.ip_family = 2;
         hep_proto.protocol = 6;
 	hep_proto.proto_type = 1;
-        hep_proto.srcIp = ret.info.srcaddr;
-        hep_proto.dstIp = ret.info.dstaddr;
-        hep_proto.srcPort = tcpret.info.srcport;
-        hep_proto.dstPort = tcpret.info.dstport;
-*/
+        hep_proto.srcIp = host;
+        hep_proto.dstIp = host;
+        hep_proto.srcPort = 0;
+        hep_proto.dstPort = 0;
 
-	// sendHEP3();
+	// parseSIP(data, hep_proto);
 }
 
 var sendHEP3 = function(hepmsg, msg, rcinfo){
@@ -104,4 +97,26 @@ var sendHEP3 = function(hepmsg, msg, rcinfo){
 			stats.heperr++;
 		}
 	}
+}
+
+/* UDP Socket Handler */
+
+var getSocket = function (type) {
+    if (undefined === socket) {
+        socket = dgram.createSocket(type);
+        socket.on('error', socketErrorHandler);
+        /**
+         * Handles socket's 'close' event,
+         * recover socket in case of unplanned closing.
+         */
+        var socketCloseHandler = function () {
+            if (socketUsers > 0) {
+                socket = undefined;
+                --socketUsers;
+                getSocket(type);
+            }
+        };
+        socket.on('close', socketCloseHandler);
+    }
+    return socket;
 }
