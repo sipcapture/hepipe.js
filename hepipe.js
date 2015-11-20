@@ -153,16 +153,7 @@ var exit = false;
 
 process.on('SIGINT', function() {
     console.log();
-    if (exit) {
-    	console.log("Exiting...");
-        process.exit();
-    } else {
-        console.log('Statistics:', stats);
-    	console.log("Press CTRL-C within 2 seconds to Exit...");
-        exit = true;
-	setTimeout(function () {
-    	  // console.log("Continuing...");
-	  exit = false;
-	}, 2000)
-    }
+    console.log('Statistics:', stats);
+    console.log("Exiting...");
+    process.exit();
 });
