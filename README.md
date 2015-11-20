@@ -4,7 +4,7 @@
 ##### HEP Enabled Log harvester for Node.js
 
 
-HEPipe _(hep-pipe)_ is a tool to extract and ship arbitrary rows _(logs, events, cdrs, etc)_ with a mandatory correlation_id to a HEP servers such as [HOMER](https://github.com/sipcapture/homer) or [PCAPTURE](http://pcapture.com) using [HEP](http://hep.sipcapture.org) Type _100_
+HEPipe _(hep-pipe)_ is a tool to extract and ship arbitrary rows _(logs, events, cdrs, etc)_ with correlation_id to a HEP server such as [HOMER](https://github.com/sipcapture/homer) or [PCAPTURE](http://pcapture.com) using [HEP](http://hep.sipcapture.org) Type _100_
 
 * Status: Experimental
 
