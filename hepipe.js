@@ -1,15 +1,22 @@
+/*
+HEPIPE-JS
+(c) 2015 QXIP BV
+For License details, see LICENSE
+*/
+
 var fs = require("fs");
-var http = require("http");
-//var HEPjs = require('./hep3');
 var HEPjs = require('hep-js');
 
 var _config_ = require("./config");
 var logs = _config_.LOGS;
 
-var version = 'v0.1';
+var version = '0.0.2';
 var debug = false;
 var stats = {rcvd: 0, parsed: 0, hepsent: 0, err: 0, heperr: 0 }; 
 var hep_proto = { "type": "HEP", "version": 3, "payload_type": 100, "captureId": _config_.HEP_ID, "capturePass": _config_.HEP_AUTH, "ip_family": 2};
+
+console.log("HEPipe.js v"+version);
+console.log("Press CTRL-C to Exit...");
 
 /* HEP OUT SOCKET */ 
 
@@ -65,9 +72,11 @@ function readChanges(logSet, from, to){
 
     lines = (last+chunk).split("\n");
     for(i = 0; i < lines.length - 1; i++) {
+    	     stats.rcvd++;
 	     var cid = (lines[i]).match(rgx);
 	     if (cid != undefined && cid[1] != undefined ) {
 		      // post process string
+		      stats.parsed++;
 		      preHep(tag,lines[i],cid[1],host);
      	     }
     }
@@ -92,7 +101,7 @@ function preHep(tag,data,cid,host) {
         hep_proto.srcPort = 0;
         hep_proto.dstPort = 0;
 	hep_proto.correlation_id = cid;
-
+	// Send HEP3
 	sendHEP3(data, hep_proto);
 }
 
@@ -137,3 +146,23 @@ var getSocket = function (type) {
     }
     return socket;
 }
+
+/* Stats & Kill Thread */
+
+var exit = false;
+
+process.on('SIGINT', function() {
+    console.log();
+    if (exit) {
+    	console.log("Exiting...");
+        process.exit();
+    } else {
+        console.log('Statistics:', stats);
+    	console.log("Press CTRL-C within 2 seconds to Exit...");
+        exit = true;
+	setTimeout(function () {
+    	  // console.log("Continuing...");
+	  exit = false;
+	}, 2000)
+    }
+});
