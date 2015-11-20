@@ -18,14 +18,16 @@ Application parameters for HEP and LOGS monitoring in ```config.js```
 
 Each entry in LOGS defines a log path and a _(regex)_ rule to match/extract the proper correlation ID from each row
 
+---------------------
+
 #### Example Log: NGCP
 ```
 Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: <script>: Sending reply, fs='udp:127.0.0.1:5060' - ID=11876453@127.0.1.1
 ```
 
-##### Example Filter: <pre> /ID=([^&]\S*)/ </pre>
+##### Example Filter: ```/ID=([^&]\S*)/```
 
-##### Correlation: <pre> 11876453@127.0.1.1 </pre>
+##### Correlation: ```11876453@127.0.1.1```
 
 ----------
 
