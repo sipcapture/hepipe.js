@@ -25,7 +25,7 @@ Each entry in LOGS defines a log path and a _(regex)_ rule to match/extract the 
 Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: <script>: Sending reply, fs='udp:127.0.0.1:5060' - ID=11876453@127.0.1.1
 ```
 
-##### Example Filter: ```/ID=([^&]\S*)/```
+##### Example Filter: ```ID=([^&]\\S*)```
 
 ##### Correlation: ```11876453@127.0.1.1```
 
