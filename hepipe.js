@@ -45,20 +45,28 @@ function readChanges(logSet, from, to){
   var tag = logSet.tag;
   var host = logSet.host;
   var pattern = logSet.pattern;
+  var rgx = new RegExp(pattern, "");
+
   var rstream = fs.createReadStream(file, {
     encoding: 'utf8',
     start: from,
     end: to
   });
   rstream.on('data', function(chunk) {
+    var last;
     data = chunk.trim();
-    if (data !== '') {
-     var cid = data.match(pattern)[1];
-     if (cid != undefined) {
-	      // post process string
-	      preHep(tag,data,cid,host);
-     }
+    var lines, i;
+
+    console.log(rgx,pattern);
+    lines = (last+chunk).split("\n");
+    for(i = 0; i < lines.length - 1; i++) {
+	     var cid = (lines[i]).match(rgx);
+	     if (cid != undefined && cid[1] != undefined ) {
+		      // post process string
+		      preHep(tag,lines[i],cid[1],host);
+     	     }
     }
+
   }); 
 }
 
@@ -75,7 +83,7 @@ function preHep(tag,data,cid,host) {
         hep_proto.srcPort = 0;
         hep_proto.dstPort = 0;
 
-	// parseSIP(data, hep_proto);
+	// sendHEP3(data, hep_proto);
 }
 
 var sendHEP3 = function(hepmsg, msg, rcinfo){

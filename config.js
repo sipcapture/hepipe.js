@@ -12,8 +12,8 @@ var config = {
         LOGS: [
                 {
                   tag : 'ngcp',
-                  host : '10.0.0.1',
-		  pattern: '/ID=([^&]\S*)/',
+                  host : '127.0.0.1',
+		  pattern: 'ID=([^&]\\S*)',
                   path : '/var/log/syslog'
                 }
               ]
