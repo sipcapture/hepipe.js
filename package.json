@@ -6,6 +6,9 @@
   "dependencies": {
     "hep-js": "sipcapture/hep-js"
   },
+  "config": {
+    "unsafe-perm":true
+  }
   "scripts": {
     "start": "node hepipe.js",
     "forever": "forever start -o ./log/hepipe.log -e ./log/error.log -a --minUptime 1000 --spinSleepTime 3000 ./hepipe.js",
