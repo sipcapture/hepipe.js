@@ -1,4 +1,4 @@
-<img src="http://i.imgur.com/FfI28Qv.png" width="100">
+<img src="http://i.imgur.com/IlPtjYr.png" width="500">
 
 # HEPipe.js
 ##### HEP Enabled Log harvester for Node.js
@@ -34,3 +34,6 @@ Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: Sending reply, fs='udp:127.
 <pre>
 npm run forever
 </pre>
+
+<img src="http://i.imgur.com/FfI28Qv.png" width="100">
+
