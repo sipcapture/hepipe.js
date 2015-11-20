@@ -1,4 +1,4 @@
-<img src="http://i.imgur.com/IlPtjYr.png" width="500">
+<img src="https://i.imgur.com/scqdu3p.png" width="500">
 
 # HEPipe.js
 ##### HEP Enabled Log harvester for Node.js
