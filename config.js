@@ -13,7 +13,7 @@ var config = {
                 {
                   tag : 'ngcp',
                   host : '127.0.0.1',
-		  pattern: 'ID=([^&]\\S*)',
+		  pattern: 'ID=([^&]\\S*)', // escape backslashes!
                   path : '/var/log/syslog'
                 }
               ]
