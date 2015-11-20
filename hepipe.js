@@ -1,5 +1,6 @@
 var fs = require("fs");
 var http = require("http");
+//var HEPjs = require('./hep3');
 var HEPjs = require('hep-js');
 
 var _config_ = require("./config");
@@ -8,7 +9,12 @@ var logs = _config_.LOGS;
 var version = 'v0.1';
 var debug = false;
 var stats = {rcvd: 0, parsed: 0, hepsent: 0, err: 0, heperr: 0 }; 
-var hep_proto = { "type": "HEP", "version": 3, "payload_type": "100", "captureId": _config_.HEP_ID, "capturePass": _config_.HEP_AUTH, "ip_family": 2};
+var hep_proto = { "type": "HEP", "version": 3, "payload_type": 100, "captureId": _config_.HEP_ID, "capturePass": _config_.HEP_AUTH, "ip_family": 2};
+
+/* HEP OUT SOCKET */ 
+
+var dgram = require('dgram');
+var socket = dgram.createSocket("udp4");
 
 // Start watching all files inf config.LOGS array
 for (var i = 0; i < logs.length; i++) {
@@ -57,7 +63,6 @@ function readChanges(logSet, from, to){
     data = chunk.trim();
     var lines, i;
 
-    console.log(rgx,pattern);
     lines = (last+chunk).split("\n");
     for(i = 0; i < lines.length - 1; i++) {
 	     var cid = (lines[i]).match(rgx);
@@ -72,24 +77,28 @@ function readChanges(logSet, from, to){
 
 function preHep(tag,data,cid,host) {
 
-	console.log('CID: '+cid, 'DATA:'+data);	
+	if (debug) console.log('CID: '+cid, 'DATA:'+data);	
+
+	var datenow =  new Date().getTime();
+	hep_proto.time_sec = Math.floor(datenow / 1000);
+	hep_proto.time_usec = datenow - (hep_proto.time_sec*1000);
 
 	// Build HEP3
 	hep_proto.ip_family = 2;
         hep_proto.protocol = 6;
-	hep_proto.proto_type = 1;
-        hep_proto.srcIp = host;
-        hep_proto.dstIp = host;
+	hep_proto.proto_type = 100;
+        hep_proto.srcIp = '127.0.0.1';
+        hep_proto.dstIp = '127.0.0.1';
         hep_proto.srcPort = 0;
         hep_proto.dstPort = 0;
+	hep_proto.correlation_id = cid;
 
-	// sendHEP3(data, hep_proto);
+	sendHEP3(data, hep_proto);
 }
 
-var sendHEP3 = function(hepmsg, msg, rcinfo){
-	if (hepmsg) {
+var sendHEP3 = function(msg, rcinfo){
+	if (rcinfo) {
 		try {
-			if (debug) console.log('Sending HEP3 Packet...');
 			var hep_message = HEPjs.encapsulate(msg,rcinfo);
 			if (hep_message) {
 				socket = getSocket('udp4'); 

@@ -1,9 +1,10 @@
 {
   "name": "hepipe-js",
   "description": "HEP Enabled log harvester",
+  "version": "0.0.2",
   "author": "lmangani",
   "dependencies": {
-    "hep-js": "*"
+    "hep-js": "sipcapture/hep-js"
   },
   "scripts": {
     "start": "node hepipe.js",
