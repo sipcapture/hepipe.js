@@ -72,23 +72,23 @@ function readChanges(logSet, from, to){
 
     lines = (last+chunk).split("\n");
     for(i = 0; i < lines.length - 1; i++) {
+    	     var datenow =  new Date().getTime();
     	     stats.rcvd++;
 	     var cid = (lines[i]).match(rgx);
 	     if (cid != undefined && cid[1] != undefined ) {
 		      // post process string
 		      stats.parsed++;
-		      preHep(tag,lines[i],cid[1],host);
+		      preHep(tag,lines[i],cid[1],host,datenow);
      	     }
     }
 
   }); 
 }
 
-function preHep(tag,data,cid,host) {
+function preHep(tag,data,cid,host,datenow) {
 
 	if (debug) console.log('CID: '+cid, 'DATA:'+data);	
 
-	var datenow =  new Date().getTime();
 	hep_proto.time_sec = Math.floor(datenow / 1000);
 	hep_proto.time_usec = datenow - (hep_proto.time_sec*1000);
 
