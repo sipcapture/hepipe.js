@@ -30,6 +30,18 @@ Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: Sending reply, fs='udp:127.
 
 * Regex Filter: ```ID=([^&]\\S*)```
 * Correlation ID: ```11876453@127.0.1.1```
+* HEP Output: <pre>rcinfo = { type: 'HEP',
+  version: 3,
+  payload_type: '100',
+  captureId: '2001',
+  capturePass: 'myHep',
+  ...
+  correlation_id: '11876453@127.0.1.1',
+  payload: {
+      msg: 'Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: Sending reply, fs='udp:127.0.0.1:5060' - ID=11876453@127.0.1.1'
+           }
+}
+          </pre>
 
 ----------
 
