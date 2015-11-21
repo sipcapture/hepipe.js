@@ -23,7 +23,7 @@ Each LOGS entry defines a log path and a _(regex)_ rule to match/extract the pro
 
 ---------------------
 
-#### Example Log: NGCP
+#### Example Log: NGCP/Kamailio
 ```
 Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: Sending reply, fs='udp:127.0.0.1:5060' - ID=11876453@127.0.1.1
 ```
@@ -38,5 +38,21 @@ Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: Sending reply, fs='udp:127.
 npm run forever
 </pre>
 
+That's all! If you matched your strings right, HEP logs are being shipped out!
+
+---------
+
+### Developers
+Contributions to our projects are always welcome! If you intend to participate and help us improve our software, we kindly ask you to sign a [CLA (Contributor License Agreement)](http://cla.qxip.net) and coordinate at best with the existing team via the [homer-dev](http://groups.google.com/group/homer-dev) mailing list.
+
+
+----------
 <img src="http://i.imgur.com/FfI28Qv.png" width="100">
+
+
+##### If you use our projects in production, please consider supporting us with a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=donation%40sipcapture%2eorg&lc=US&item_name=SIPCAPTURE&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
+
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=donation%40sipcapture%2eorg&lc=US&item_name=SIPCAPTURE&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
+
+
 
