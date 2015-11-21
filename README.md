@@ -19,6 +19,8 @@ Application parameters for HEP and LOGS monitoring in ```config.js```
 
 Each LOGS entry defines a log path and a _(regex)_ rule to match/extract the proper correlation ID from rows
 
+<img src="http://i.imgur.com/CbASvM3.png" />
+
 ---------------------
 
 #### Example Log: NGCP
