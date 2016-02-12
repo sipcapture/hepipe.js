@@ -66,7 +66,7 @@ function readChanges(logSet, from, to){
     end: to
   });
   rstream.on('data', function(chunk) {
-    var last;
+    var last = "";
     data = chunk.trim();
     var lines, i;
 
