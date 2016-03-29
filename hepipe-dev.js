@@ -98,7 +98,7 @@ function readChanges(logSet, from, to){
     lines = (last+chunk).split("\n");
     for(i = 0; i < lines.length - 1; i++) {
     	     var datenow =  new Date().getTime();
-	     if (ztime) { if (lastdate == datenow) { datenow += i; } else { lastdate = datenow}; }
+	     if (ztime) { if (lastdate == datenow) { datenow += i; } else { lastdate = datenow;} }
     	     stats.rcvd++;
 	     var cid = (lines[i]).match(rgx);
 	     if (cid != undefined && cid[1] != undefined ) {
