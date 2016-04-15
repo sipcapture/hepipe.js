@@ -101,19 +101,9 @@ var preHep = function(message) {
 	rcinfo.time_usec = datenow - (rcinfo.time_sec*1000);
 
 	if (debug) console.log(rcinfo);
-	if (message.pause && message.pause > 0) {
-		pause += message.pause;
-		setTimeout(function() {
-		    // delayed ts
-		    var datenow = new Date().getTime();
-		    rcinfo.time_sec = Math.floor( datenow / 1000);
-		    rcinfo.time_usec = datenow - (rcinfo.time_sec*1000);
-		    sendHEP3(msg,rcinfo);
-		    process.stdout.write("rcvd: "+stats.rcvd+", parsed: "+stats.parsed+", hepsent: "+stats.hepsent+", err: "+stats.err+", heperr: "+stats.heperr+"\r");
-		}, pause);
-	} else {
-		sendHEP3(msg,rcinfo);
-	}
+	
+	sendHEP3(msg,rcinfo);
+	
 };
 
 
@@ -154,7 +144,7 @@ function fsConnect() {
 	                          ip_family: 2,
 	                          protocol: 17,
 	                          proto_type: 33,
-	                        //  proto_type: 5,
+	                          //  proto_type: 5,
 	                          srcIp: e.getHeader('variable_local_media_ip'),
 	                          dstIp: e.getHeader('variable_remote_audio_ip_reported'),
 	                          srcPort: parseInt(e.getHeader('variable_local_media_port')),
@@ -189,17 +179,16 @@ function fsConnect() {
 					"TYPE": e.getHeader('Event-Name')
 				}.toString()
 			};
-			// Prepare for shipping!
-			preHep(message);
+			
+		// Prepare for shipping!
+		preHep(message);
 	}
-
     });
 }
 
 /* Start Loop */
 
 fsConnect();
-
 
 /* Exit */
 
