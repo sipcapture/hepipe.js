@@ -21,7 +21,10 @@ var _config_ = {
 			HEP_SERVER: '127.0.0.1', 
 			HEP_PORT: 9060, 
 			HEP_PASS: 'multipass', 
-			HEP_ID: 2222 
+			HEP_ID: 2222,
+			ESL_SERVER: '127.0.0.1',
+			ESL_PORT: 8021,
+			ESL_PASS: 'ClueCon'
 		};
 
 var debug = false, report = true, exit = false;
@@ -33,6 +36,9 @@ var stats = {rcvd: 0, parsed: 0, hepsent: 0, err: 0, heperr: 0 };
 if(process.argv.indexOf("-d") != -1){ debug = true; }
 if(process.argv.indexOf("-s") != -1){ _config_.HEP_SERVER = process.argv[process.argv.indexOf("-s") + 1]; }
 if(process.argv.indexOf("-p") != -1){ _config_.HEP_PORT = process.argv[process.argv.indexOf("-p") + 1]; }
+if(process.argv.indexOf("-es") != -1){ _config_.ESL_SERVER = process.argv[process.argv.indexOf("-es") + 1]; }
+if(process.argv.indexOf("-ep") != -1){ _config_.ESL_PORT = process.argv[process.argv.indexOf("-ep") + 1]; }
+if(process.argv.indexOf("-ew") != -1){ _config_.ESL_PASS = process.argv[process.argv.indexOf("-ew") + 1]; }
 
 /* UDP Socket Handler */
 
@@ -61,8 +67,6 @@ var socket = dgram.createSocket("udp4");
 
 
 /* HEP Handler */
-
-var hep_proto = { "type": "HEP", "version": 3, "payload_type": 100, "captureId": _config_.HEP_ID, "capturePass": _config_.HEP_AUTH, "ip_family": 2};
 
 var sendHEP3 = function(msg,rcinfo){
 	if (rcinfo) {
@@ -116,90 +120,85 @@ var preHep = function(message) {
 
 /* FS ESL Handler */
 
-conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
+var eslWaitTime = 60000;
+function fsConnect() {
+  eslConn = new esl.Connection(_config_.ESL_SERVER, _config_.ESL_PORT, _config_.ESL_PASS)
+    .on("error", function (error) {
+      console.log('ESL Connection Error ' + JSON.stringify(error));
+      setTimeout(fsConnect, eslWaitTime);
+    }).on("esl::end", function () {
+      console.log('ESL Connection Ended');
+      setTimeout(fsConnect, eslWaitTime);
+    }).on("esl::ready", function () {
+      // Subscribe to events
+      // eslConn.events('json' , 'ALL', function() {
+      eslConn.events('json' , 'CHANNEL_DESTROY', function() {
+        console.log('ESL ready - subscribed to receive events.');
+      });
+    }).on("esl::event::**", function (e, headers, body) {
+      // do stuff
+      if (debug) console.log(e, 'Event: ' + e.getHeader('Event-Name'));
 
-   conn.subscribe([
-          //  'CHANNEL_CREATE',
-          //  'CHANNEL_CALLSTATE',
-          //  'CHANNEL_STATE',
-          //  'CHANNEL_EXECUTE',
-          //  'CHANNEL_EXECUTE_COMPLETE',
-            'CHANNEL_DESTROY'
-        ], function(data) {
-		// console.log('event',this);
-		console.log('ESL Client Connected');
-        }
-   );
-
-    conn.api('status', function(res) {
-        //res is an esl.Event instance
-        console.log(res.getBody());
-    });
-   
-   
-});
-
-if (debug) {
-	conn.on('esl::event::**', function(e) {
-            console.log(e, 'Event: ' + e.getHeader('Event-Name'));
-        });
-}
-
-if (report) {
-	conn.on('esl::event::**', function(e) {
+      	if (report) {
 
 	    if(e.getHeader('Event-Name') != 'CHANNEL_DESTROY') return;
 	    if(!e.getHeader('variable_rtp_use_codec_rate')) return;
 
-            if (debug) console.log(e, 'Event: ' + e.getHeader('Event-Name'));
+			var message = {
+				rcinfo: {
+	                          type: 'HEP',
+	                          version: 3,
+	                          payload_type: 'JSON',
+	                          captureId: _config_.HEP_ID,
+	                          capturePass: _config_.HEP_PASS,
+	                          ip_family: 2,
+	                          protocol: 17,
+	                          proto_type: 33,
+	                        //  proto_type: 5,
+	                          srcIp: e.getHeader('variable_local_media_ip'),
+	                          dstIp: e.getHeader('variable_remote_audio_ip_reported'),
+	                          srcPort: parseInt(e.getHeader('variable_local_media_port')),
+	                          dstPort: parseInt(e.getHeader('variable_remote_audio_port')),
+	                          correlation_id: e.getHeader('variable_sip_call_id')
+	                  	},
 
-		var message = {
-			rcinfo: {
-                          type: 'HEP',
-                          version: 3,
-                          payload_type: 'JSON',
-                          captureId: _config_.HEP_ID,
-                          capturePass: _config_.HEP_PASS,
-                          ip_family: 2,
-                          protocol: 17,
-                          proto_type: 33,
-                          srcIp: e.getHeader('variable_local_media_ip'),
-                          dstIp: e.getHeader('variable_remote_audio_ip_reported'),
-                          srcPort: parseInt(e.getHeader('variable_local_media_port')),
-                          dstPort: parseInt(e.getHeader('variable_remote_audio_port')),
-                          correlation_id: e.getHeader('variable_sip_call_id')
-                  	},
-		        payload: {
-				"CORRELATION_ID": e.getHeader('variable_sip_call_id'),
-				"RTP_SIP_CALL_ID": e.getHeader('variable_sip_call_id'),
-				"JITTER": (parseInt(e.getHeader('variable_rtp_audio_in_jitter_max_variance')) + parseInt(e.getHeader('variable_rtp_audio_in_jitter_max_variance')))/2,
-				"REPORT_TS": e.getHeader('Event-Date-Timestamp'),
-				"TL_BYTE": parseInt(e.getHeader('variable_rtp_audio_in_media_bytes'))+parseInt(e.getHeader('variable_rtp_audio_out_media_bytes')),
-				"TOTAL_PK": parseInt(e.getHeader('variable_rtp_audio_in_packet_count'))+parseInt(e.getHeader('variable_rtp_audio_out_packet_count')),
-				"PACKET_LOSS": parseInt(e.getHeader('variable_rtp_audio_in_skip_packet_count'))+parseInt(e.getHeader('variable_rtp_audio_out_skip_packet_count')),
-				"MAX_JITTER": e.getHeader('variable_rtp_audio_in_jitter_max_variance'),
-				"MIN_JITTER": e.getHeader('variable_rtp_audio_in_jitter_min_variance'),
-				"DELTA": e.getHeader('variable_rtp_audio_in_mean_interval'),
-				"MOS": e.getHeader('variable_rtp_audio_in_mos'),
-				"SRC_IP": e.getHeader('variable_advertised_media_ip'), 
-				"SRC_PORT": e.getHeader('variable_local_media_port'), 
-				"DST_IP": e.getHeader('variable_remote_media_ip'),
-				"DST_PORT": e.getHeader('variable_remote_media_port'),
-				"CODEC_PT":e.getHeader('variable_rtp_audio_recv_pt'), 
-				"PTIME": e.getHeader('variable_rtp_use_codec_ptime'),
-				"CLOCK": e.getHeader('variable_rtp_use_codec_rate'),
-				"CODEC_NAME": e.getHeader('variable_rtp_use_codec_name'),
-				"TYPE": e.getHeader('Event-Name')
-			}.toString()
-		};
+				// HEP Type 5
+			        // payload:  { "type":200,"ssrc":1814766290,"report_count":1,"report_blocks":[{"source_ssrc":-1640316609,"fraction_lost":0,"packets_lost":0,"highest_seq_no":783,"lsr":"0","ia_jitter":48,"dlsr":0}],"sender_information":{"packets":379,"ntp_timestamp_sec":"3373905467","ntp_timestamp_usec":"4288694262","rtp_timestamp":-210772703,"octets":7580}}.toString(),
 
-		// Prepare for shipping!
-		preHep(message);
-		
+				// HEP Type 33
+			        payload: {
+					"CORRELATION_ID": e.getHeader('variable_sip_call_id'),
+					"RTP_SIP_CALL_ID": e.getHeader('variable_sip_call_id'),
+					"JITTER": (parseInt(e.getHeader('variable_rtp_audio_in_jitter_max_variance')) + parseInt(e.getHeader('variable_rtp_audio_in_jitter_max_variance')))/2,
+					"REPORT_TS": e.getHeader('Event-Date-Timestamp'),
+					"TL_BYTE": parseInt(e.getHeader('variable_rtp_audio_in_media_bytes'))+parseInt(e.getHeader('variable_rtp_audio_out_media_bytes')),
+					"TOTAL_PK": parseInt(e.getHeader('variable_rtp_audio_in_packet_count'))+parseInt(e.getHeader('variable_rtp_audio_out_packet_count')),
+					"PACKET_LOSS": parseInt(e.getHeader('variable_rtp_audio_in_skip_packet_count'))+parseInt(e.getHeader('variable_rtp_audio_out_skip_packet_count')),
+					"MAX_JITTER": e.getHeader('variable_rtp_audio_in_jitter_max_variance'),
+					"MIN_JITTER": e.getHeader('variable_rtp_audio_in_jitter_min_variance'),
+					"DELTA": e.getHeader('variable_rtp_audio_in_mean_interval'),
+					"MOS": e.getHeader('variable_rtp_audio_in_mos'),
+					"SRC_IP": e.getHeader('variable_advertised_media_ip'), 
+					"SRC_PORT": e.getHeader('variable_local_media_port'), 
+					"DST_IP": e.getHeader('variable_remote_media_ip'),
+					"DST_PORT": e.getHeader('variable_remote_media_port'),
+					"CODEC_PT":e.getHeader('variable_rtp_audio_recv_pt'), 
+					"PTIME": e.getHeader('variable_rtp_use_codec_ptime'),
+					"CLOCK": e.getHeader('variable_rtp_use_codec_rate'),
+					"CODEC_NAME": e.getHeader('variable_rtp_use_codec_name'),
+					"TYPE": e.getHeader('Event-Name')
+				}.toString()
+			};
+			// Prepare for shipping!
+			preHep(message);
+	}
 
-        });
+    });
 }
 
+/* Start Loop */
+
+fsConnect();
 
 
 /* Exit */
