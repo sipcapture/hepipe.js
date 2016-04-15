@@ -27,7 +27,9 @@ var _config_ = {
 			ESL_PASS: 'ClueCon'
 		};
 
-var debug = false, report = true, exit = false;
+var debug = false; 
+var report = true, log = true;
+var exit = false;
 var stats = {rcvd: 0, parsed: 0, hepsent: 0, err: 0, heperr: 0 }; 
 
 
@@ -72,7 +74,7 @@ var sendHEP3 = function(msg,rcinfo){
 	if (rcinfo && msg) {
 		try {
 			if (debug) console.log('Sending HEP3 Packet to '+_config_.HEP_SERVER+':'+_config_.HEP_PORT+'...');
-			msg = JSON.stringify(msg);
+			if (! typeof msg === 'string' || ! msg instanceof String) msg = JSON.stringify(msg);
 			var hep_message = HEPjs.encapsulate(msg.toString(),rcinfo);
 			stats.parsed++;
 			if (hep_message && hep_message.length) {
@@ -130,10 +132,40 @@ function fsConnect() {
       // do stuff
       if (debug) console.log(e, 'Event: ' + e.getHeader('Event-Name'));
 
+      	if (log) {
+
+	    // Log Events to HEP Message
+	    if(e.getHeader('Event-Name')) {
+			var message = {
+
+				rcinfo: {
+	                          type: 'HEP',
+	                          version: 3,
+	                          payload_type: 'JSON',
+	                          captureId: _config_.HEP_ID,
+	                          capturePass: _config_.HEP_PASS,
+	                          ip_family: 2,
+	                          protocol: 17,
+	                          proto_type: 100,
+	                          srcIp: e.getHeader('FreeSWITCH-IPv4'),
+	                          dstIp: e.getHeader('FreeSWITCH-IPv4'),
+	                          srcPort: 0,
+	                          dstPort: 0,
+	                          correlation_id: e.getHeader('variable_sip_call_id')
+	                  	},
+			        payload: e.getHeader('Event-Date-Local') + ': ' + e.getHeader('Channel-Name') + ' ' + e.getHeader('Event-Name') + ' (' + e.getHeader('Event-Calling-Function') + ')'
+			};
+
+			// Prepare for shipping!
+			preHep(message);
+	    }
+
+	}
+
       	if (report) {
 
-	    if(e.getHeader('Event-Name') != 'CHANNEL_DESTROY') return;
-	    if(!e.getHeader('variable_rtp_use_codec_rate')) return;
+	    if(e.getHeader('Event-Name') == 'CHANNEL_DESTROY') {
+	      if(!e.getHeader('variable_rtp_use_codec_rate')) return;
 
 			var message = {
 				rcinfo: {
@@ -183,6 +215,8 @@ function fsConnect() {
 			
 		// Prepare for shipping!
 		preHep(message);
+
+	      }
 	}
     });
 }
