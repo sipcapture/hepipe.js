@@ -72,7 +72,7 @@ var sendHEP3 = function(msg,rcinfo){
 	if (rcinfo) {
 		try {
 			if (debug) console.log('Sending HEP3 Packet to '+_config_.HEP_SERVER+':'+_config_.HEP_PORT+'...');
-			var hep_message = HEPjs.encapsulate(msg,rcinfo);
+			var hep_message = HEPjs.encapsulate(JSON.stringify(msg),rcinfo);
 			stats.parsed++;
 			if (hep_message) {
 				socket.send(hep_message, 0, hep_message.length, _config_.HEP_PORT, _config_.HEP_SERVER, function(err) {
@@ -177,7 +177,7 @@ function fsConnect() {
 					"CLOCK": e.getHeader('variable_rtp_use_codec_rate'),
 					"CODEC_NAME": e.getHeader('variable_rtp_use_codec_name'),
 					"TYPE": e.getHeader('Event-Name')
-				}.toString()
+				}
 			};
 			
 		// Prepare for shipping!
