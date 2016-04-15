@@ -69,12 +69,13 @@ var socket = dgram.createSocket("udp4");
 /* HEP Handler */
 
 var sendHEP3 = function(msg,rcinfo){
-	if (rcinfo) {
+	if (rcinfo && msg) {
 		try {
 			if (debug) console.log('Sending HEP3 Packet to '+_config_.HEP_SERVER+':'+_config_.HEP_PORT+'...');
-			var hep_message = HEPjs.encapsulate(JSON.stringify(msg),rcinfo);
+			msg = JSON.stringify(msg);
+			var hep_message = HEPjs.encapsulate(msg.toString(),rcinfo);
 			stats.parsed++;
-			if (hep_message) {
+			if (hep_message && hep_message.length) {
 				socket.send(hep_message, 0, hep_message.length, _config_.HEP_PORT, _config_.HEP_SERVER, function(err) {
 					stats.hepsent++;
 				});
@@ -143,7 +144,7 @@ function fsConnect() {
 	                          capturePass: _config_.HEP_PASS,
 	                          ip_family: 2,
 	                          protocol: 17,
-	                          proto_type: 33,
+	                          proto_type: 99,
 	                          //  proto_type: 5,
 	                          srcIp: e.getHeader('variable_local_media_ip'),
 	                          dstIp: e.getHeader('variable_remote_audio_ip_reported'),
