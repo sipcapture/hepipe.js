@@ -12,7 +12,7 @@ This tools subscribes to FreeSWITCH ESL events and converts them into correlated
 #### Support
 
 | ESL Event  | Hep Mode | HEP Type  |
-|---|:--|:--|
+|:--|:--|:--|
 | CHANNEL_CREATE | LOG | 100 |
 | CHANNEL_ANSWER | LOG | 100 |
 | CHANNEL_DESTROY | LOG | 100 | 
@@ -29,7 +29,7 @@ npm install
 ##### Options
 
 | switch  | description  | default |
-|---|:--|--:|
+|:--|:--|--:|
 | -s | HEP SERVER IP | 127.0.0.1 |
 | -p | HEP SERVER PORT | 9060 |
 | -es| FS ESL IP | 127.0.0.1 |
