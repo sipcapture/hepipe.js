@@ -138,12 +138,12 @@ function fsConnect() {
 
       // do stuff
       if (debug) console.log('Event: ' + e.getHeader('Event-Name'));
-      if (debug) console.log('Unique-ID: ' + e.getHeader('Unique-ID'));
-	
+      if (debug) console.log('Unique-ID: ' + e.getHeader('Unique-ID'));	
 
       // No CID no Party! Check B-Leg, A-Leg and Included Header in sequence, Skip if none available
-      if(!e.getHeader('variable_sip_call_id')) { 
-		if (debug) console.log('Missing CID!');
+      // if(!e.getHeader('variable_sip_call_id')) { 
+		// if (debug) console.log('Missing CID!');
+
 			if (db) {
 				if (db.get(e.getHeader('Other-Leg-Unique-ID'))) {
 					if (debug) console.log('FOUND B-LEG!', db.get(e.getHeader('Other-Leg-Unique-ID')).cid);
@@ -151,16 +151,12 @@ function fsConnect() {
 				} else if (db.get(e.getHeader('Unique-ID'))) {
 					if (debug) console.log('FOUND!', db.get(e.getHeader('Unique-ID')).cid);
 					var xcid = db.get(e.getHeader('Unique-ID')).cid;
-				} else { return; }
+				} else { 
+					if (debug) console.log('DEFAULT!', db.get(e.getHeader('variable_sip_call_id')));
+					var xcid = e.getHeader('variable_sip_call_id'); 
+				}
 
-		} else {
-
-			return;
-		}
-      } else {
-	var xcid = e.getHeader('variable_sip_call_id');
-      }
-
+		   	} else { var xcid = e.getHeader('variable_sip_call_id'); }
 
 	/* EVENT LOGGER */
 	if (log) {
@@ -355,15 +351,15 @@ function fsConnect() {
 	                          ip_family: 2,
 	                          protocol: 17,
 	                          proto_type: 99,
-	                          srcIp: e.getHeader('variable_local_media_ip'),
-	                          dstIp: e.getHeader('variable_remote_audio_ip_reported'),
-	                          srcPort: parseInt(e.getHeader('variable_local_media_port')),
-	                          dstPort: parseInt(e.getHeader('variable_remote_audio_port')),
+	                          srcIp: e.getHeader('variable_local_media_ip') ?  e.getHeader('variable_local_media_ip') : '127.0.0.1',
+	                          dstIp: e.getHeader('variable_remote_audio_ip_reported') ? e.getHeader('variable_remote_audio_ip_reported') : '127.0.0.1',
+	                          srcPort: parseInt(e.getHeader('variable_local_media_port')) ? parseInt(e.getHeader('variable_local_media_port')) : 0,
+	                          dstPort: parseInt(e.getHeader('variable_remote_audio_port')) ? parseInt(e.getHeader('variable_remote_audio_port')) : 0,
 	                          correlation_id: xcid ? xcid : e.getHeader('variable_sip_call_id')
 	                  	},
 
 				// HEP Type 33
-			        payload: {
+			        payload:  JSON.stringify({ 
 					"CORRELATION_ID": xcid ? xcid : e.getHeader('variable_sip_call_id'),
 					"RTP_SIP_CALL_ID": xcid ? xcid : e.getHeader('variable_sip_call_id'),
 					"JITTER": (parseInt(e.getHeader('variable_rtp_audio_in_jitter_max_variance')) + parseInt(e.getHeader('variable_rtp_audio_in_jitter_max_variance')))/2,
@@ -384,7 +380,7 @@ function fsConnect() {
 					"CLOCK": parseInt(e.getHeader('variable_rtp_use_codec_rate')),
 					"CODEC_NAME": e.getHeader('variable_rtp_use_codec_name'),
 					"TYPE": e.getHeader('Event-Name')
-				}
+				})
 			};
 			
 		  // Prepare for shipping!
