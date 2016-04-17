@@ -19,3 +19,8 @@ This experiment hooks ESL events from FreeSWITCH and converts them into HEP Logs
 ```
 nodejs esl/hepipe-esl.js -s 127.0.0.2 -p 9060 -d
 ``` 
+
+##### TODO
+
+* move to redis?
+* clean up / modularize code
