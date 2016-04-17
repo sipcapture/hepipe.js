@@ -281,7 +281,7 @@ function fsConnect() {
 
             if(e.getHeader('Event-Name') == 'RECV_RTCP_MESSAGE') {
 
-			if (!e.getHeader('Source0-SSRC')) return;
+		if (!e.getHeader('Source0-SSRC')) {
 			if (debug) console.log('Processing RTCP Report...',e);
 
 			var message = {
@@ -328,6 +328,8 @@ function fsConnect() {
 			
 		// Prepare for shipping!
 		preHep(message);
+
+	    }
 
 	    }
 
