@@ -8,6 +8,18 @@
 This tools subscribes to FreeSWITCH ESL events and converts them into correlated HEP Logs & Reports
 
 * Status: Experimental
+* 
+#### Support
+
+| ESL Event  | Hep Mode | HEP Type  |
+|---|:--|:--|
+| CHANNEL_CREATE | LOG | 100 |
+| CHANNEL_ANSWER | LOG | 100 |
+| CHANNEL_DESTROY | LOG | 100 | 
+| CUSTOM | LOG | 100 | 
+| RECV_RTCP_MESSAGE | RTCP | 5 | 
+| CHANNEL_DESTROY | CUSTOM QoS | 99 |
+
 
 ### Install
 <pre>
@@ -27,7 +39,7 @@ npm install
 
 ##### Usage Example
 ```
-nodejs esl/hepipe-esl.js -s 127.0.0.2 -p 9060 -d
+nodejs hepipe-esl.js -s {homer_ip} -p 9060 -d
 ``` 
 
 ##### TODO
