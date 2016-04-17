@@ -26,6 +26,10 @@ This tools subscribes to FreeSWITCH ESL events and converts them into correlated
 npm install
 </pre>
 
+##### Usage Example
+```
+nodejs hepipe-esl.js -s {homer_ip} -p 9060 -d
+``` 
 ##### Options
 
 | switch  | description  | default |
@@ -37,12 +41,7 @@ npm install
 | -ew| FS ESL Password | ClueCon |
 
 
-##### Usage Example
-```
-nodejs hepipe-esl.js -s {homer_ip} -p 9060 -d
-``` 
-
 ##### TODO
 
-* move to redis?
+* improve dirty db / move to redis?
 * clean up / modularize code
