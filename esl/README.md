@@ -1,19 +1,29 @@
-### HEPIPE for FreeSWITCH ESL
+<img src="https://i.imgur.com/scqdu3p.png" width="400">
 
-This experiment hooks ESL events from FreeSWITCH and converts them into HEP Logs & Reports
+# HEPipe.js
+##### HEP Enabled Freeswitch ESL harvester in Node.js
+
+<img src="http://i.imgur.com/74Gswvq.gif" />
+
+This tools subscribes to FreeSWITCH ESL events and converts them into correlated HEP Logs & Reports
+
+* Status: Experimental
+
+### Install
+<pre>
+npm install
+</pre>
 
 ##### Options
 
-  * -s
-    * HEP SERVER IP (default: 127.0.0.1)
-  * -p
-    * HEP SERVER PORT (default: 9060)
-  * -es
-    * FS ESL IP (default: 127.0.0.1)
-  * -ep
-    * FS ESL Port (default: 8021)
-  * -ew
-    * FS ESL Password (default: ClueCon)
+| switch  | description  | default |
+|---|:--|--:|
+| -s | HEP SERVER IP | 127.0.0.1 |
+| -p | HEP SERVER PORT | 9060 |
+| -es| FS ESL IP | 127.0.0.1 |
+| -ep| FS ESL PORT | 8021 |
+| -ew| FS ESL Password | ClueCon |
+
 
 ##### Usage Example
 ```
