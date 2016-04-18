@@ -20,6 +20,11 @@ This tools subscribes to FreeSWITCH ESL events and converts them into correlated
 | RECV_RTCP_MESSAGE | RTCP | 5 | 
 | CHANNEL_DESTROY | CUSTOM QoS | 99 |
 
+##### Correlation Headers
+
+```Other-Leg-Unique-ID``` -> ```Unique-ID``` -> ```variable_sip_call_id```
+
+
 
 ### Install
 <pre>
