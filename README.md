@@ -23,7 +23,7 @@ Each LOGS entry defines a log path and a _(regex)_ rule to match/extract the pro
 
 ---------------------
 
-#### Example Log: NGCP/Kamailio
+#### Example: NGCP/Kamailio Logs
 ```
 Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: Sending reply, fs='udp:127.0.0.1:5060' - ID=11876453@127.0.1.1
 ```
@@ -43,6 +43,28 @@ Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: Sending reply, fs='udp:127.
            }
 }
           </pre>
+
+#### Example: NGCP/RTPEngine Logs
+```
+Nov 19 22:05:36 ams2 (daemon.info) rtpengine[2812]: [11876453@127.0.1.1] ------ Media #1 (audio over RTP/AVP) using PCMA/8000
+```
+
+* Regex Filter: ```\\[.*].*\\[(.*)\\]```
+* Correlation ID: ```11876453@127.0.1.1```
+* HEP Output: <pre>rcinfo = { 
+    type: 'HEP',
+    version: 3,
+    payload_type: '100',
+    captureId: '2002',
+    capturePass: 'myHep',
+    ...
+    correlation_id: '11876453@127.0.1.1',
+    payload: {
+      msg: 'Nov 19 22:05:36 ams2 (daemon.info) rtpengine[2812]: [11876453@127.0.1.1] ------ Media #1 (audio over RTP/AVP) using PCMA/8000'
+           }
+}
+</pre>
+
 
 ----------
 
