@@ -116,7 +116,7 @@ function preHep(tag,data,cid,host,datenow) {
 	if (debug) console.log('CID: '+cid, 'DATA:'+data);	
 
 	hep_proto.time_sec = Math.floor(datenow / 1000);
-	hep_proto.time_usec = datenow - (hep_proto.time_sec*1000);
+	hep_proto.time_usec = (datenow - (hep_proto.time_sec*1000))*1000;
 
 	// Build HEP3
 	hep_proto.ip_family = 2;
