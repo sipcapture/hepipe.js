@@ -12,7 +12,7 @@ This tool harvests Meetecho socket events and converts them into correlated HEP 
 #### Support
 
 | Janus Event | Janus Type | HEP Mode | HEP Type  |
-|:--|:--|:--|
+|:--|:--|:--|:--|
 | SIP | 64 | SIP | 1 |
 | CORE | 1 | LOG | 100 |
 | SESSION | 2 | LOG | 100 |
