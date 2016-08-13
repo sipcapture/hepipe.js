@@ -108,28 +108,12 @@ var preHep = function(message) {
 	rcinfo.time_usec = datenow - (rcinfo.time_sec*1000);
 
 	if (debug) console.log(rcinfo);
-	
 	sendHEP3(msg,rcinfo);
-	
 };
 
 
 
 /* JANUS Event Handler */
-
-http.createServer(function (req, res) {
-    var body = "";
-    req.on('data', function (chunk) {
-        body += chunk;
-    });
-    req.on('end', function () {
-        // console.log(body);
-	processJanusEvent(body);
-        res.writeHead(200);
-        res.end();
-    });
-}).listen(_config_.API_PORT);
-
 
 function processJanusEvent(e) {
       // Parse Event
@@ -156,10 +140,13 @@ function processJanusEvent(e) {
 		// Save association Handle-ID > SIP Call-ID
 		if(e.event.data['call-id']) {
 		    db.set(e.handle_id, {cid: e.event.data['call-id']}, function() {
-		    if (debug) console.log('Session Correlation ' + e.handle_id + ' = ' + e.event.data['call-id']);
-   		});
+		       if (debug) console.log('Session Correlation ' + e.handle_id + ' = ' + e.event.data['call-id']);
+   		    });
+		    xcid = e.event.data['call-id'];
+	        }
 
 		var ip = '127.0.0.1';
+
 		if(e.event.data['sip']) {
 		// Send as SIP type
 
@@ -221,11 +208,26 @@ function processJanusEvent(e) {
 			preHep(message);
 
 		}
+
 	  }
-	}
+      }
 }
 
 
+/* HTTP API Receiver */
+
+http.createServer(function (req, res) {
+    var body = "";
+    req.on('data', function (chunk) {
+        body += chunk;
+    });
+    req.on('end', function () {
+        // console.log(body);
+	processJanusEvent(body);
+        res.writeHead(200);
+        res.end();
+    });
+}).listen(_config_.API_PORT);
 
 /* Exit */
 
