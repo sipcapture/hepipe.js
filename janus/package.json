@@ -1,0 +1,20 @@
+{
+  "name": "hepipe-janus",
+  "description": "HEP Enabled harvester for Meetecho Janus",
+  "version": "0.0.1",
+  "author": "lorenzo.mangani@gmail.com",
+  "dependencies": {
+    "hep-js": "sipcapture/hep-js",
+    "dirty": "*"
+  },
+  "config": {
+    "unsafe-perm":true
+  },
+  "scripts": {
+    "start": "nodejs hepipe-janus.js",
+    "forever": "forever start -o ./log/hepipe.log -e ./log/error.log -a --minUptime 1000 --spinSleepTime 3000 ./hepipe-janus.js",
+    "debug": "forever -l ./log/hepipe.log -o ./log/hepipe.log -e ./log/error.log --minUptime 1000 --spinSleepTime 3000 ./hepipe-janus.js",
+    "stop": "forever stopall",
+    "preinstall": "npm install -g forever"
+  }
+}
