@@ -73,8 +73,8 @@ root@host:/usr/src/hepipe.js/janus# nodejs hepipe-janus.js -s {your.homer.ip} -p
 ```
   https://<hostname>:8080/siptest.html
 ```
-- 
-- Connect to HOMER and locate your SIP Call + Logs
+
+- Connect to __HOMER__ and locate your SIP Call + Logs
   <img src="http://i.imgur.com/g3sT9ZF.png" />
 
 ```
