@@ -9,6 +9,11 @@ HEPipe _(hep-pipe)_ is a simple powerful tool to monitor files _(logs, events, c
 
 * Status: Experimental
 
+#### Specialized Versions:
+
+* [HEPIPE ESL](https://github.com/sipcapture/hepipe.js/tree/master/esl) for FreeSwitch
+* [HEPIPE Janus](https://github.com/sipcapture/hepipe.js/tree/master/janus) for Janus WebRTC Gateway
+
 ### Install
 <pre>
 npm install
