@@ -26,7 +26,7 @@ var db = dirty(); // omit filename for no persistence
 			HEP_PASS: 'multipass', 
 			HEP_ID: 2222,
 			API_SERVER: '127.0.0.1',
-			API_PORT: 8021
+			API_PORT: 7777
 	};
 
 var debug = false;
@@ -128,15 +128,15 @@ http.createServer(function (req, res) {
         res.writeHead(200);
         res.end();
     });
-}).listen(API_PORT);
+}).listen(_config_.API_PORT);
 
 
 function processJanusEvent(e) {
       // Parse Event
       e = JSON.parse(e);
       // do stuff
-      if (debug) console.log('Janus Session-ID: ' + e.getHeader('session_id'));
-      if (debug) console.log('Janus Event Type: ' + e.getHeader('type'));
+      if (debug) console.log('Janus Session-ID: ' + e.session_id);
+      if (debug) console.log('Janus Event Type: ' + e.type);
 
       // No CID no Party! Check handle_id to Call-ID association, Skip if none available
 	if (db) {
@@ -154,18 +154,16 @@ function processJanusEvent(e) {
 	    if(e.type == 64) {
 
 		// Save association Handle-ID > SIP Call-ID
-		if(e.event.data.call-id) {
-		    db.set(e.handle_id, {cid: e.event.data.call-id}, function() {
-		    if (debug) console.log('Session Correlation ' + e.handle_id + ' = ' + e.event.data.call-id);
+		if(e.event.data['call-id']) {
+		    db.set(e.handle_id, {cid: e.event.data['call-id']}, function() {
+		    if (debug) console.log('Session Correlation ' + e.handle_id + ' = ' + e.event.data['call-id']);
    		});
 
-
 		var ip = '127.0.0.1';
-
-		if(e.event.data.sip) {
+		if(e.event.data['sip']) {
 		// Send as SIP type
 
-			var payload = e.event.data.sip;
+			var payload = e.event.data['sip'];
 
 			// Format HEP Header
 			var message = {
@@ -223,98 +221,8 @@ function processJanusEvent(e) {
 			preHep(message);
 
 		}
-
-
 	  }
-
 	}
-
-
-	/* RTCP EMULATION */
-	if (report_rtcp) {
-
-            if(e.type == 32) {
-		/*
-		{
-		   "type": 32,
-		   "timestamp": 25811762929,
-		   "session_id": 1143320055091737,
-		   "handle_id": 6006260340428864,
-		   "event": {
-		      "media": "audio",
-		      "base": 48000,
-		      "lsr": 37971368,
-		      "lost": 0,
-		      "lost-by-remote": 0,
-		      "jitter-local": 44,
-		      "jitter-remote": 0,
-		      "packets-received": 140,
-		      "packets-sent": 141,
-		      "bytes-received": 24080,
-		      "bytes-sent": 25662,
-		      "nacks-received": 0,
-		      "nacks-sent": 0
-		   }
-		}
-		*/
-
-		if (!e.getHeader('Source0-SSRC')) {
-			if (debug) console.log('Processing RTCP Report...',e);
-
-			var message = {
-				rcinfo: {
-	                          type: 'HEP',
-	                          version: 3,
-	                          payload_type: 'JSON',
-	                          captureId: _config_.HEP_ID,
-	                          capturePass: _config_.HEP_PASS,
-	                          ip_family: 2,
-	                          protocol: 17,
-	                          proto_type: 5,
-	                          srcIp: e.getHeader('variable_local_media_ip') ? e.getHeader('variable_local_media_ip') : '127.0.0.1',
-	                          dstIp: e.getHeader('variable_remote_audio_ip_reported') ? e.getHeader('variable_remote_audio_ip_reported') : '127.0.0.1',
-	                          srcPort: parseInt(e.getHeader('variable_local_media_port')) ? parseInt(e.getHeader('variable_local_media_port')) : 0,
-	                          dstPort: parseInt(e.getHeader('variable_remote_audio_port')) ? parseInt(e.getHeader('variable_remote_audio_port')) : 0,
-	                          correlation_id: xcid ? xcid : db.get(e.getHeader('Unique-ID')).cid
-	                  	},
-
-				// HEP Type 5
-			        payload:  JSON.stringify({ 
-						"type":200,
-						"ssrc": e.getHeader('SSRC'),
-						"report_count": parseInt(e.getHeader('Event-Sequence')),
-						"report_blocks":[{
-						   "source_ssrc": e.getHeader('Source0-SSRC'),
-						   "fraction_lost": parseInt(e.getHeader('Source0-Fraction')),
-						   "packets_lost": parseInt(e.getHeader('Source0-Lost')),
-						   "highest_seq_no": parseInt(e.getHeader('Source0-Highest-Sequence-Number-Received')),
-						   "lsr": parseInt(e.getHeader('Source0-LSR')),
-						   "ia_jitter": parseFloat(e.getHeader('Source0-Jitter')),
-						   "dlsr": parseInt(e.getHeader('Source0-DLSR'))
-						}],
-						"sender_information":{
-							"packets": parseInt(e.getHeader('Sender-Packet-Count')),
-							"ntp_timestamp_sec": parseInt(e.getHeader('NTP-Most-Significant-Word')),
-							"ntp_timestamp_usec": parseInt(e.getHeader('NTP-Least-Significant-Word')),
-							"rtp_timestamp": parseInt(e.getHeader('RTP-Timestamp')),
-							"octets": parseInt(e.getHeader('Octect-Packet-Count'))
-							}
-					  })
-				
-			};
-			
-		// Prepare for shipping!
-		preHep(message);
-
-	    }
-
-	    }
-
-
-        }
-
-
-    });
 }
 
 
