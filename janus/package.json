@@ -5,7 +5,8 @@
   "author": "lorenzo.mangani@gmail.com",
   "dependencies": {
     "hep-js": "sipcapture/hep-js",
-    "dirty": "*"
+    "dirty": "*",
+    "http": "*"
   },
   "config": {
     "unsafe-perm":true
