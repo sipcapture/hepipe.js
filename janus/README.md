@@ -5,7 +5,7 @@
 
 <img src="http://i.imgur.com/74Gswvq.gif" />
 
-This tool harvests Meetecho socket events and converts them into correlated HEP Logs & Reports
+This node tool harvests [Meetecho Janus](https://github.com/meetecho) socket events and converts them into correlated HEP Logs & Reports for SIPCAPTURE/PCAPTURE
 
 * Status: Experimental
 
