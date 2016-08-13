@@ -65,14 +65,14 @@ nodejs hepipe-janus.js -es {api_listen_ip} -ep {api_listen_port} -s {homer_ip} -
 - Connect to the container to install and run HEPIPE for Janus:
 ```
 # docker exec -ti janus /bin/bash
-root@8ba4eea1260a:# cd /usr/src && git clone http://github.com/sipcapture/hepipe.js && cd hepipe.js/janus
-root@8ba4eea1260a:/usr/src/hepipe.js/janus# npm install
-root@8ba4eea1260a:/usr/src/hepipe.js/janus# nodejs hepipe-janus.js -s {your.homer.ip} -p 9060
+root@host:# cd /usr/src && git clone http://github.com/sipcapture/hepipe.js && cd hepipe.js/janus
+root@host:/usr/src/hepipe.js/janus# npm install
+root@host:/usr/src/hepipe.js/janus# nodejs hepipe-janus.js -s {your.homer.ip} -p 9060
 ```
 - Use your Browser to connect to the Janus Demo and perform a SIP Call
-- ```
-- https://<hostname>:8080/siptest.html
-- ```
+```
+  https://<hostname>:8080/siptest.html
+```
 - 
 - Connect to HOMER and locate your SIP Call + Logs
   <img src="http://i.imgur.com/g3sT9ZF.png" />
