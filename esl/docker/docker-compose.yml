@@ -1,0 +1,7 @@
+version: '2'
+services:
+  hepipe-esl:
+    container_name: hepipe-esl
+    build: .
+    env_file:
+      - hepipe-esl.env
