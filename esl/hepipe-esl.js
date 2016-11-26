@@ -297,7 +297,7 @@ function fsConnect() {
 	                          srcIp: e.getHeader('variable_local_media_ip') ? e.getHeader('variable_local_media_ip') : '127.0.0.1',
 	                          dstIp: e.getHeader('variable_remote_audio_ip_reported') ? e.getHeader('variable_remote_audio_ip_reported') : '127.0.0.1',
 	                          srcPort: parseInt(e.getHeader('variable_local_media_port')) ? parseInt(e.getHeader('variable_local_media_port')) : 0,
-	                          dstPort: parseInt(e.getHeader('variable_remote_audio_port')) ? parseInt(e.getHeader('variable_remote_audio_port')) : 0,
+	                          dstPort: parseInt(e.getHeader('variable_remote_media_port')) ? parseInt(e.getHeader('variable_remote_media_port')) : 0,
 	                          correlation_id: xcid ? xcid : db.get(e.getHeader('Unique-ID')).cid
 	                  	},
 
@@ -357,7 +357,7 @@ function fsConnect() {
 	                          srcIp: e.getHeader('variable_local_media_ip') ?  e.getHeader('variable_local_media_ip') : '127.0.0.1',
 	                          dstIp: e.getHeader('variable_remote_audio_ip_reported') ? e.getHeader('variable_remote_audio_ip_reported') : '127.0.0.1',
 	                          srcPort: parseInt(e.getHeader('variable_local_media_port')) ? parseInt(e.getHeader('variable_local_media_port')) : 0,
-	                          dstPort: parseInt(e.getHeader('variable_remote_audio_port')) ? parseInt(e.getHeader('variable_remote_audio_port')) : 0,
+	                          dstPort: parseInt(e.getHeader('variable_remote_media_port')) ? parseInt(e.getHeader('variable_remote_media_port')) : 0,
 	                          correlation_id: xcid ? xcid : e.getHeader('variable_sip_call_id')
 	                  	},
 
