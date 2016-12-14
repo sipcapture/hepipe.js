@@ -11,7 +11,7 @@ var _config_ = require("./config");
 var logs = _config_.LOGS;
 
 var version = '0.0.2';
-var debug = false;
+var debug = true;
 var stats = {rcvd: 0, parsed: 0, hepsent: 0, err: 0, heperr: 0 }; 
 var hep_proto = { "type": "HEP", "version": 3, "payload_type": 100, "captureId": _config_.HEP_ID, "capturePass": _config_.HEP_AUTH, "ip_family": 2};
 
@@ -36,12 +36,20 @@ function watchFile(logSet){
   var currSize = fs.statSync(path).size;
   console.log("["+new Date+"]"+ " Watching '"+path+"' ("+currSize+")");
 
+  var i, rgx;
+  var patternList = [];
+
+  for (i = 0; i < logSet.pattern.length; i++) {
+	console.log("Processing pattern [" + logSet.pattern[i] +"]");	
+  	rgx = new RegExp(logSet.pattern[i], "");
+	patternList.push(rgx);
+  }	
   // now watch every x msec for file-size changes...
   setInterval(function(){
     var newSize = fs.statSync(path).size;
     if (newSize > currSize) {
       // additions were applied to file...
-      readChanges(logSet, currSize, newSize);
+      readChanges(logSet, patternList, currSize, newSize);
       currSize = newSize;
     }   
     else {
@@ -53,12 +61,19 @@ function watchFile(logSet){
   }, 1000);
 }
 
-function readChanges(logSet, from, to){
+function readChanges(logSet, patternList, from, to){
   var file = logSet.path;
   var tag = logSet.tag;
   var host = logSet.host;
   var pattern = logSet.pattern;
-  var rgx = new RegExp(pattern, "");
+
+  var i, rgx;
+  var patternList = [];
+
+  for (i = 0; i < pattern.length; i++) {
+  	rgx = new RegExp(pattern[i], "");
+	patternList.push(rgx);
+  }	
 
   var rstream = fs.createReadStream(file, {
     encoding: 'utf8',
@@ -68,18 +83,22 @@ function readChanges(logSet, from, to){
   rstream.on('data', function(chunk) {
     var last = "";
     data = chunk.trim();
-    var lines, i;
+    var lines, i, j;
 
     lines = (last+chunk).split("\n");
     for(i = 0; i < lines.length - 1; i++) {
     	     var datenow =  new Date().getTime();
     	     stats.rcvd++;
-	     var cid = (lines[i]).match(rgx);
-	     if (cid != undefined && cid[1] != undefined ) {
+             
+  	    for (j = 0; j < patternList.length; j++) {
+	     	var cid = (lines[i]).match(patternList[j]);
+	        if (cid != undefined && cid[1] != undefined ) {
 		      // post process string
 		      stats.parsed++;
 		      preHep(tag,lines[i],cid[1],host,datenow);
-     	     }
+              break;
+     	    }
+        }
     }
 
   }); 
