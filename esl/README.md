@@ -33,7 +33,7 @@ npm install
 
 ##### Usage Example
 ```
-nodejs hepipe-esl.js -s {homer_ip} -p 9060 -d
+nodejs hepipe-esl.js -s {homer_ip} -p 9060 -d --all
 ``` 
 ##### Options
 
@@ -44,6 +44,11 @@ nodejs hepipe-esl.js -s {homer_ip} -p 9060 -d
 | -es| FS ESL IP | 127.0.0.1 |
 | -ep| FS ESL PORT | 8021 |
 | -ew| FS ESL Password | ClueCon |
+|--call| Enable call events| false|
+|--rtcp| Enable RTCP events| false|
+|--qos| Enable QOS events| false|
+|--all| Enable all events| false|
+
 
 
 ##### TODO
