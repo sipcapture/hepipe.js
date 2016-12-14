@@ -31,8 +31,9 @@ var db = dirty('uuid.db');
 	};
 
 var debug = false; 
-var report = true;
-var report_rtcp = true;
+var report_call_events = false;
+var report_rtcp_events = false;
+var report_qos_events = false;
 log = true;
 var exit = false;
 var stats = {rcvd: 0, parsed: 0, hepsent: 0, err: 0, heperr: 0 }; 
@@ -46,7 +47,14 @@ if(process.argv.indexOf("-p") != -1){ _config_.HEP_PORT = process.argv[process.a
 if(process.argv.indexOf("-es") != -1){ _config_.ESL_SERVER = process.argv[process.argv.indexOf("-es") + 1]; }
 if(process.argv.indexOf("-ep") != -1){ _config_.ESL_PORT = process.argv[process.argv.indexOf("-ep") + 1]; }
 if(process.argv.indexOf("-ew") != -1){ _config_.ESL_PASS = process.argv[process.argv.indexOf("-ew") + 1]; }
-
+if(process.argv.indexOf("--call") != -1){ report_call_events = true; }
+if(process.argv.indexOf("--rtcp") != -1){ report_rtcp_events = true; }
+if(process.argv.indexOf("--qos") != -1){ report_qos_events = true; }
+if(process.argv.indexOf("--all") != -1){
+  report_call_events = true;
+  report_rtcp_events = true;
+  report_qos_events = true;
+}
 /* UDP Socket Handler */
 
 var getSocket = function (type) {
@@ -248,7 +256,7 @@ function fsConnect() {
 		}
 
 		// Format HEP Header
-
+    if (report_call_events) {
 			var message = {
 
 				rcinfo: {
@@ -271,17 +279,18 @@ function fsConnect() {
 
 			// Prepare for shipping!
 			preHep(message);
+    }
 	  }    
 
 	}
 
 
 	/* RTCP EMULATION */
-	if (report_rtcp) {
+	if (report_rtcp_events) {
 
             if(e.getHeader('Event-Name') == 'RECV_RTCP_MESSAGE') {
 
-		if (!e.getHeader('Source0-SSRC')) {
+		if (e.getHeader('Source0-SSRC')) {
 			if (debug) console.log('Processing RTCP Report...',e);
 
 			var message = {
@@ -338,7 +347,7 @@ function fsConnect() {
 
 
 	/* CUSTOM HEP QoS REPORT */
-      	if (report) {
+    if (report_qos_events) {
 
 	     if(e.getHeader('Event-Name') == 'CHANNEL_DESTROY') {
 	      	    if(e.getHeader('variable_rtp_use_codec_rate') && e.getHeader('variable_sip_call_id')) {
