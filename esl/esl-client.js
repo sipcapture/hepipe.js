@@ -1,5 +1,5 @@
 var eslWaitTime = 60000;
-var debug = true;
+var debug = false;
 
 var dirty = require('dirty');
 var db = dirty('uuid.db');
@@ -12,23 +12,33 @@ var log = true;
 var hep_id;
 var hep_pass;
 
+var esl = require('modesl');
+
 module.exports = {
-  init:function(id, pass, report_call, report_rtcp, report_qos) {
-    hep_id = id;
-    hep_pass = pass;
-    report_call_events = report_call;
-    report_rtcp_events = report_rtcp;
-    report_qos_events = report_qos;
-  },
-  connect:function(host, port, pass, callback_preHep) {
-    var esl = require('modesl');
+  connect:function(config, callback_preHep, deb) {
+    host = config.ESL_SERVER;
+    port = config.ESL_PORT;
+    pass = config.ESL_PASS;
+    hep_id = config.HEP_ID;
+    hep_pass = config.HEP_PASS;
+    report_call_events = config.report_call_events;
+    report_rtcp_events = config.report_rtcp_events;
+    report_qos_events = config.report_qos_events;
+    debug = deb;
+    eslConnect(host, port, pass, callback_preHep);
+  }
+};
+
+var eslConnect = function(host, port, pass, callback_preHep) {
+    if (debug) console.log("host: " + host + ", port: " + port + ", pass: " + pass);
+
     eslConn = new esl.Connection(host, port, pass)
     .on("error", function (error) {
       console.log('ESL Connection Error ' + JSON.stringify(error));
-      setTimeout(fsConnect, eslWaitTime);
+      setTimeout(function() { eslConnect(host, port, pass, callback_preHep);}, eslWaitTime);
     }).on("esl::end", function () {
       console.log('ESL Connection Ended');
-      setTimeout(fsConnect, eslWaitTime);
+      setTimeout(function() { eslConnect(host, port, pass, callback_preHep);}, eslWaitTime);
     }).on("esl::ready", function () {
       eslConn.events('json' , 'ALL', function() {
         console.log('ESL ready - subscribed to receive events.');
@@ -142,7 +152,6 @@ module.exports = {
         }
       }
     });
-}
 };
 
 var getRTCPMessage = function(e, xcid, hep_id, hep_pass) {
@@ -253,4 +262,4 @@ var getCallMessage = function(e, xcid, payload, hep_id, hep_pass) {
   };
 
   return message;
-}
+};
