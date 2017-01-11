@@ -1,102 +1,30 @@
-<img src="https://i.imgur.com/scqdu3p.png" width="400">
+# hepipe.js
 
-# HEPipe.js
-##### HEP Enabled Log harvester for Node.js
+hepipe.js can detect 3 types of events:
+- log lines
+- FS ESL events
+- Janus events
 
-<img src="http://i.imgur.com/74Gswvq.gif" />
+and it will encapsulate the data with the required payload (e.g. JSON vs SIP) and send it to an Homer instance.
 
-HEPipe _(hep-pipe)_ is a simple powerful tool to monitor files _(logs, events, cdrs, etc)_, extract and ship arbitrary rows  with a matching correlation field to a HEP server such as [HOMER](https://github.com/sipcapture/homer) or [PCAPTURE](http://pcapture.com) using [HEP](http://hep.sipcapture.org) Type _100_
+These are configured by setting the related sections in `config.js` (see `examples/` for managing log events, ESL events (log, RTCP, QoS) and Janus events (SIP, other events)).
 
-* Status: Experimental
+## Installation and Run
 
-------------
+Prepare with:
 
-##### Specialized Versions:
+`sudo npm install`
 
-* [HEPIPE ESL](https://github.com/sipcapture/hepipe.js/tree/master/esl) for FreeSwitch
-* [HEPIPE Janus](https://github.com/sipcapture/hepipe.js/tree/master/janus) for Janus WebRTC Gateway
+Fill config.js as needed (please see `examples/`)
 
-------------
+Run with:
 
-### Install
-<pre>
-npm install
-</pre>
+`sudo node hepipe.js`
 
-### Configure
-Application parameters for HEP and LOGS monitoring in ```config.js```
+## Dockerisation
 
-Each LOGS entry defines a log path and a _(regex)_ rule to match/extract the proper correlation ID from rows
+You can also run hepipe.js inside a Docker container.
 
-<img src="http://i.imgur.com/CbASvM3.png" />
+config.js can be made available via a read-only Volume.
 
----------------------
-
-#### Example: NGCP/Kamailio Logs
-```
-Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: Sending reply, fs='udp:127.0.0.1:5060' - ID=11876453@127.0.1.1
-```
-
-* Regex Filter: ```ID=([^&]\\S*)```
-* Correlation ID: ```11876453@127.0.1.1```
-* HEP Output: <pre>rcinfo = { 
-    type: 'HEP',
-    version: 3,
-    payload_type: '100',
-    captureId: '2001',
-    capturePass: 'myHep',
-    ...
-    correlation_id: '11876453@127.0.1.1',
-    payload: {
-      msg: 'Nov 19 22:05:36 ams2 /usr/sbin/kamailio[1067]: INFO: Sending reply, fs='udp:127.0.0.1:5060' - ID=11876453@127.0.1.1'
-           }
-}
-          </pre>
-
-#### Example: NGCP/RTPEngine Logs
-```
-Nov 19 22:05:36 ams2 (daemon.info) rtpengine[2812]: [11876453@127.0.1.1] ------ Media #1 (audio over RTP/AVP) using PCMA/8000
-```
-
-* Regex Filter: ```\\[.*].*\\[(.*)\\]```
-* Correlation ID: ```11876453@127.0.1.1```
-* HEP Output: <pre>rcinfo = { 
-    type: 'HEP',
-    version: 3,
-    payload_type: '100',
-    captureId: '2002',
-    capturePass: 'myHep',
-    ...
-    correlation_id: '11876453@127.0.1.1',
-    payload: {
-      msg: 'Nov 19 22:05:36 ams2 (daemon.info) rtpengine[2812]: [11876453@127.0.1.1] ------ Media #1 (audio over RTP/AVP) using PCMA/8000'
-           }
-}
-</pre>
-
-
-----------
-
-### Start Hepipe-js
-<pre>
-npm run forever
-</pre>
-
-That's all! If you matched your strings right, HEP logs are being shipped out!
-
----------
-
-### Developers
-Contributions to our projects are always welcome! If you intend to participate and help us improve our software, we kindly ask you to sign a [CLA (Contributor License Agreement)](http://cla.qxip.net) and coordinate at best with the existing team via the [homer-dev](http://groups.google.com/group/homer-dev) mailing list.
-
-
-----------
-<img src="http://i.imgur.com/FfI28Qv.png" width="100">
-
-
-##### If you use our projects in production, please consider supporting us with a [donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=donation%40sipcapture%2eorg&lc=US&item_name=SIPCAPTURE&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
-
-[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=donation%40sipcapture%2eorg&lc=US&item_name=SIPCAPTURE&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
-
-
-
+Ensure that the container can access the monitored log (e.g. via a Volume), and can connect to FS ESL or Janus Events API as needed.

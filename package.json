@@ -4,7 +4,9 @@
   "version": "0.0.2",
   "author": "lmangani",
   "dependencies": {
-    "hep-js": "sipcapture/hep-js"
+    "hep-js": "sipcapture/hep-js",
+    "modesl": "*",
+    "dirty": "*"
   },
   "config": {
     "unsafe-perm":true
