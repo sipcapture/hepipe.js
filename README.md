@@ -7,7 +7,7 @@
 
 
 HEPipe.js can work several types of feeds:
-- log based events
+- Log based events
 - Freeswitch ESL events
 - Meetecho Janus events
 
