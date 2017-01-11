@@ -1,11 +1,17 @@
-# hepipe.js
+<img src="https://i.imgur.com/scqdu3p.png" width="400">
 
-hepipe.js can detect 3 types of events:
-- log lines
-- FS ESL events
-- Janus events
+# HEPipe.js
+##### HEP Enabled data harvester
 
-and it will encapsulate the data with the required payload (e.g. JSON vs SIP) and send it to an Homer instance.
+<img src="http://i.imgur.com/74Gswvq.gif" />
+
+
+HEPipe.js can work several types of feeds:
+- log based events
+- Freeswitch ESL events
+- Meetecho Janus events
+
+Each module features its own programming used to match and encapsulate extracted data using the desired HEP payload (e.g. JSON vs SIP) and send it to an [HOMER](https://github.com/sipcapture/homer) instance.
 
 These are configured by setting the related sections in `config.js` (see `examples/` for managing log events, ESL events (log, RTCP, QoS) and Janus events (SIP, other events)).
 
