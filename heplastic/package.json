@@ -1,0 +1,32 @@
+{
+  "name": "heplastic",
+  "version": "0.0.1",
+  "description": "HEP Suite Elastic logger",
+  "main": "heplastic.js",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/sipcapture/heplastic.js"
+  },
+  "keywords": [
+    "hep",
+    "hep3",
+    "encapsulation",
+    "packet",
+    "pcap",
+    "homer",
+    "sipcapture",
+    "pcapture",
+    "sip",
+    "voip",
+    "webrtc",
+    "janus",
+    "monitoring"
+  ],
+  "author": "Lorenzo Mangani <lorenzo.mangani@gmail.com> (http://sipcapture.org/)",
+  "license": "GPLv2",
+  "dependencies": {
+    "https": "*",
+    "hep-js": "*"
+    "elastic-queue": "*"
+  }
+}
