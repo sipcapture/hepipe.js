@@ -6,6 +6,7 @@
   "dependencies": {
     "hep-js": "sipcapture/hep-js",
     "modesl": "*",
+    "public-ip": "*",
     "dirty": "*"
   },
   "config": {
