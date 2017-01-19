@@ -1,7 +1,7 @@
 var config = {
 hep_config: {
   debug: false,
-  HEP_SERVER: '46.4.119.226',
+  HEP_SERVER: '127.0.0.1',
   HEP_PORT: 9063
 },
 janus_config: {
