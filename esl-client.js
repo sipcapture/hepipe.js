@@ -54,6 +54,7 @@ var eslConnect = function(host, port, pass, callback_preHep) {
         console.log('ESL ready - subscribed to receive events.');
       });
     }).on("esl::event::**", function (e, headers, body) {
+      if (!e.getHeader('Event-Name')) return;
       if (debug) console.log('Event: ' + e.getHeader('Event-Name'));
       if (debug) console.log('Unique-ID: ' + e.getHeader('Unique-ID'));
 
