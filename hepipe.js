@@ -29,8 +29,16 @@ if (config.logs_config) {
 }
 
 if (config.esl_config) {
-  var esl_client = require('./esl-client.js');
-  esl_client.connect(config.esl_config, hep_client.preHep);
+  if (config.esl_config.isArray) {
+    var esl_client = [];
+    config.esl_config.forEach(function(esl,index) {
+        var esl_client[index] = require('./esl-client.js');
+        esl_client[index].connect(esl, hep_client.preHep);
+    })
+  } else {
+    var esl_client = require('./esl-client.js');
+    esl_client.connect(config.esl_config, hep_client.preHep);
+  }
 }
 
 if (config.janus_config) {
