@@ -12,7 +12,6 @@ var eslWaitTime = 60000;
 var debug = false;
 
 var dirty = require('dirty');
-var db = dirty('uuid.db');
 
 var report_call_events = false;
 var report_rtcp_events = false;
@@ -21,6 +20,7 @@ var log = true;
 
 var hep_id;
 var hep_pass;
+var db;
 
 var esl = require('modesl');
 
@@ -35,6 +35,7 @@ module.exports = {
     report_rtcp_events = config.report_rtcp_events;
     report_qos_events = config.report_qos_events;
     debug = config.debug;
+    db = dirty(hep_id+'_uuid.db');
     eslConnect(host, port, pass, callback_preHep);
   }
 };
