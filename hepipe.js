@@ -32,8 +32,9 @@ if (config.esl_config) {
   if (config.esl_config instanceof Array) {
     console.log('Multi ESL configuration found');
     var esl_client = [];
+    var esl_module = require('./esl-client.js');
     config.esl_config.forEach(function(esl,index) {
-        esl_client[index] = require('./esl-client.js');
+        esl_client[index] = new esl_module;
         esl_client[index].connect(esl, hep_client.preHep);
     })
   } else {
