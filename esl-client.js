@@ -35,7 +35,7 @@ module.exports = {
     report_rtcp_events = config.report_rtcp_events;
     report_qos_events = config.report_qos_events;
     debug = config.debug;
-    db = dirty(hep_id+'_uuid.db');
+    db = dirty(host+'_uuid.db');
     eslConnect(host, port, pass, callback_preHep);
   }
 };
