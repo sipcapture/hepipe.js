@@ -20,7 +20,6 @@ var log = true;
 
 var hep_id;
 var hep_pass;
-var db;
 
 var esl = require('modesl');
 
@@ -35,14 +34,14 @@ module.exports = {
     report_rtcp_events = config.report_rtcp_events;
     report_qos_events = config.report_qos_events;
     debug = config.debug;
-    db = dirty(host+'_uuid.db');
     eslConnect(host, port, pass, callback_preHep);
   }
 };
 
 var eslConnect = function(host, port, pass, callback_preHep) {
     if (debug) console.log("host: " + host + ", port: " + port + ", pass: " + pass);
-
+    var db = dirty(host+'_uuid.db');
+  
     eslConn = new esl.Connection(host, port, pass)
     .on("error", function (error) {
       console.log('ESL Connection Error ' + JSON.stringify(error));
