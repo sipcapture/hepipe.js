@@ -165,6 +165,9 @@ var eslConnect = function(host, port, pass, callback_preHep) {
 };
 
 var getRTCPMessage = function(e, xcid, hep_id, hep_pass) {
+            if (!xcid){ 
+                try { xcid = db.get(e.getHeader('Unique-ID')).cid } catch(err) { console.log(err); }
+            }
             var message = {
               rcinfo: {
                 type: 'HEP',
@@ -179,7 +182,7 @@ var getRTCPMessage = function(e, xcid, hep_id, hep_pass) {
                 dstIp: e.getHeader('variable_remote_audio_ip_reported') ? e.getHeader('variable_remote_audio_ip_reported') : '127.0.0.1',
                 srcPort: parseInt(e.getHeader('variable_local_media_port')) ? parseInt(e.getHeader('variable_local_media_port')) : 0,
                 dstPort: parseInt(e.getHeader('variable_remote_media_port')) ? parseInt(e.getHeader('variable_remote_media_port')) : 0,
-                correlation_id: xcid ? xcid : db.get(e.getHeader('Unique-ID')).cid
+                correlation_id: xcid
               },
               payload:  JSON.stringify({ 
                 "type":200,
