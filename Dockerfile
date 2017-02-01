@@ -7,6 +7,7 @@ COPY hepipe.js .
 COPY hep-client.js .
 COPY log-client.js .
 COPY esl-client.js .
+COPY janus-client.js .
 COPY package.json .
 
 RUN npm install
