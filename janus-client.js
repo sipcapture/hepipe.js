@@ -38,7 +38,14 @@ module.exports = {
       });
       req.on('end', function () {
         // console.log(body);
-	processJanusEvent(body);
+        // Parse Event
+        body = JSON.parse(body);
+        if(Array.isArray(body)) {
+          for(var i in body)
+            processJanusEvent(body[i]);
+        } else {
+          processJanusEvent(body);
+        }
         res.writeHead(200);
         res.end();
       });
@@ -48,8 +55,6 @@ module.exports = {
 
 /* JANUS Event Handler */
 function processJanusEvent(e) {
-  // Parse Event
-  e = JSON.parse(e);
   // do stuff
   if (debug) console.log('Janus Session-ID: ' + e.session_id);
   if (debug) console.log('Janus Event Type: ' + e.type);
