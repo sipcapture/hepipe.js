@@ -9,8 +9,8 @@
 
 var http = require('http');
 
-var alru = require('array-lru');
-var db = alru(1024);
+var LRUMap = require('lru_map');
+var db = new LRUMap(1024);
 
 var debug = false;
 var report_rtcp = false; // Media to RTCP
