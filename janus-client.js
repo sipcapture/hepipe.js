@@ -9,8 +9,8 @@
 
 var http = require('http');
 
-var dirty = require('dirty');
-var db = dirty(); // omit filename for no persistence
+var alru = require('array-lru');
+var db = alru(1024);
 
 var debug = false;
 var report_rtcp = false; // Media to RTCP
@@ -73,9 +73,7 @@ function processJanusEvent(e) {
     if(e.type == 64) {
       // Save association Handle-ID > SIP Call-ID
       if(e.event.data['call-id']) {
-        db.set(e.handle_id, {cid: e.event.data['call-id']}, function() {
-          if (debug) console.log('Session Correlation ' + e.handle_id + ' = ' + e.event.data['call-id']);
-        });
+        db.set(e.handle_id, {cid: e.event.data['call-id']});
         xcid = e.event.data['call-id'];
       }
 

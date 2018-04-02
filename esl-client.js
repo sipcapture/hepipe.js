@@ -11,8 +11,8 @@
 var eslWaitTime = 60000;
 var debug = false;
 
-var dirty = require('dirty');
-var db = dirty('uuid.db');
+var alru = require('array-lru')
+var db = alru(1024);
 
 var report_call_events = false;
 var report_rtcp_events = false;
@@ -88,9 +88,7 @@ var eslConnect = function(host, port, pass, callback_preHep) {
               payload +=  e.getHeader('Unique-ID') + '; ';
             }
 
-            db.set(e.getHeader('Unique-ID'), {cid: e.getHeader('variable_sip_call_id')}, function() {
-              if (debug) console.log('Session init saved!');
-            });
+            db.set(e.getHeader('Unique-ID'), {cid: e.getHeader('variable_sip_call_id')});
           } else if(e.getHeader('Event-Name') == 'CHANNEL_ANSWER') {
             if(e.getHeader('Call-Direction') == 'inbound'){
               payload += 'ANSWERED; ';
@@ -102,9 +100,7 @@ var eslConnect = function(host, port, pass, callback_preHep) {
               payload +=  e.getHeader('Unique-ID') + '; ';
             }
 
-            db.set(e.getHeader('Unique-ID'), {cid: e.getHeader('variable_sip_call_id')}, function(e) {
-              if (debug) console.log('Session answer saved!' );
-            });
+            db.set(e.getHeader('Unique-ID'), {cid: e.getHeader('variable_sip_call_id')});
           } else if(e.getHeader('Event-Name') == 'CHANNEL_DESTROY') {
             if(e.getHeader('Call-Direction') == 'inbound'){
               payload += 'HANGUP; ';
