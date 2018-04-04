@@ -1,15 +1,15 @@
 {
   "name": "hepipe-js",
   "description": "HEP Enabled log harvester",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "lmangani",
   "dependencies": {
-    "hep-js": "sipcapture/hep-js",
-    "modesl": "*",
-    "dirty": "*"
+    "hep-js": "*",
+    "modesl": "^1.2.0",
+    "receptacle": "^1.3.0"
   },
   "config": {
-    "unsafe-perm":true
+    "unsafe-perm": true
   },
   "scripts": {
     "start": "nodejs hepipe.js",
