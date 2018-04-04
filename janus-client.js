@@ -9,13 +9,13 @@
 
 var http = require('http');
 
-var LRUMap = require('lru_map');
-var db = new LRUMap(1024);
+var Receptacle = require('receptacle');
+var db = new Receptacle({ max: 1024 });
 
 var debug = false;
 var report_rtcp = false; // Media to RTCP
 var log = true; // SIP + Session
-
+const ttl = { ttl: 600000 };
 
 var hep_id;
 var hep_pass;
@@ -73,7 +73,7 @@ function processJanusEvent(e) {
     if(e.type == 64) {
       // Save association Handle-ID > SIP Call-ID
       if(e.event.data['call-id']) {
-        db.set(e.handle_id, {cid: e.event.data['call-id']});
+        db.set(e.handle_id, {cid: e.event.data['call-id']}, tll);
         xcid = e.event.data['call-id'];
       }
 
