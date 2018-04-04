@@ -114,7 +114,7 @@ var eslConnect = function(host, port, pass, callback_preHep) {
               payload +=  e.getHeader('Unique-ID') + '; ';
             }
             
-            db.rm(e.getHeader('Unique-ID'), function(e) {
+            db.delete(e.getHeader('Unique-ID'), function(e) {
               if (debug) console.log('Session UUID has been removed!');
             });
           } else if(e.getHeader('Event-Name') == 'CUSTOM') {
