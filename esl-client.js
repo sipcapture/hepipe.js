@@ -100,7 +100,7 @@ var eslConnect = function (host, port, pass, callback_preHep) {
               localMediaPort: e.getHeader('variable_local_media_port'),
               remoteMediaPort: e.getHeader('variable_remote_media_port')
             };
-            console.log(`CHANNEL_PROGRESS_MEDIA SETTING CACHE FOR ${key} TO ${JSON.stringify(details)}`);
+            if (debug) console.log(`CHANNEL_PROGRESS_MEDIA SETTING CACHE FOR ${key} TO ${JSON.stringify(details)}`);
             db.set(key, details, ttl);
           } else if (e.getHeader('Event-Name') == 'CHANNEL_BRIDGE') {
             var key = e.getHeader('Unique-ID');
@@ -111,7 +111,7 @@ var eslConnect = function (host, port, pass, callback_preHep) {
               localMediaPort: e.getHeader('variable_local_media_port'),
               remoteMediaPort: e.getHeader('variable_remote_media_port')
             };
-            console.log(`CHANNEL_BRIDGE SETTING CACHE FOR ${key} TO ${JSON.stringify(details)}`);
+            if (debug) console.log(`CHANNEL_BRIDGE SETTING CACHE FOR ${key} TO ${JSON.stringify(details)}`);
             db.set(key, details, ttl);
           } else if (e.getHeader('Event-Name') == 'CHANNEL_ANSWER') {
             if (e.getHeader('Call-Direction') == 'inbound') {
@@ -132,7 +132,7 @@ var eslConnect = function (host, port, pass, callback_preHep) {
               localMediaPort: e.getHeader('variable_local_media_port'),
               remoteMediaPort: e.getHeader('variable_remote_media_port')
             };
-            console.log(`CHANNEL_ANSWER SETTING CACHE FOR ${key} TO ${JSON.stringify(details)}`);
+            if (debug) console.log(`CHANNEL_ANSWER SETTING CACHE FOR ${key} TO ${JSON.stringify(details)}`);
             db.set(key, details, ttl);
           } else if (e.getHeader('Event-Name') == 'CHANNEL_DESTROY') {
             if (e.getHeader('Call-Direction') == 'inbound') {
@@ -194,12 +194,7 @@ var eslConnect = function (host, port, pass, callback_preHep) {
 };
 
 var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
-  var call;
-  if (db.get(e.getHeader('Other-Leg-Unique-ID'))) {
-    call = db.get(e.getHeader('Other-Leg-Unique-ID'));
-  } else {
-    call = db.get(e.getHeader('Unique-ID'));
-  }
+  var call = db.get(e.getHeader('Unique-ID'));
 
   var message = {
     rcinfo: {
