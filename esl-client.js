@@ -90,7 +90,13 @@ var eslConnect = function(host, port, pass, callback_preHep) {
               payload +=  e.getHeader('Unique-ID') + '; ';
             }
 
-            db.set(e.getHeader('Unique-ID'), {cid: e.getHeader('variable_sip_call_id')}, ttl);
+            db.set(e.getHeader('Unique-ID'), {
+              cid: e.getHeader('variable_sip_call_id'),
+              localMediaIp: e.getHeader('variable_local_media_ip'),
+              remoteMediaIp: e.getHeader('variable_remote_media_ip'),
+              localMediaPort: e.getHeader('variable_local_media_port'),
+              remoteMediaPort: e.getHeader('variable_remote_media_port')
+            }, ttl);
           } else if(e.getHeader('Event-Name') == 'CHANNEL_ANSWER') {
             if(e.getHeader('Call-Direction') == 'inbound'){
               payload += 'ANSWERED; ';
