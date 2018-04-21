@@ -214,8 +214,6 @@ var getRTCPMessage = function(e, xcid, hep_id, hep_pass) {
 };
 
 var getQoSMessage = function(e, xcid, hep_id, hep_pass) {
-            var call = db.get(e.getHeader('Unique-ID'));
-            
             var message = {
               rcinfo: {
                 type: 'HEP',
@@ -227,10 +225,10 @@ var getQoSMessage = function(e, xcid, hep_id, hep_pass) {
                 protocol: 17,
                 proto_type: 32,
                 mos: -1,
-                srcIp: call.localMediaIp ? call.localMediaIp : '127.0.0.1',
-                dstIp: call.remoteMediaIp ? call.remoteMediaIp : '127.0.0.1',
-                srcPort: call.localMediaPort ? call.localMediaPort : 0,
-                dstPort: call.remoteMediaPort ? call.remoteMediaPort : 0,
+                srcIp: e.getHeader('variable_local_media_ip') ?  e.getHeader('variable_local_media_ip') : '127.0.0.1',
+                dstIp: e.getHeader('variable_remote_media_ip') ? e.getHeader('variable_remote_media_ip') : '127.0.0.1',
+                srcPort: parseInt(e.getHeader('variable_local_media_port')) ? parseInt(e.getHeader('variable_local_media_port')) : 0,
+                dstPort: parseInt(e.getHeader('variable_remote_media_port')) ? parseInt(e.getHeader('variable_remote_media_port')) : 0,
                 correlation_id: xcid ? xcid : ''
               },
               payload:  JSON.stringify({ 
