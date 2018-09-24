@@ -206,10 +206,10 @@ var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
       ip_family: 2,
       protocol: 17,
       proto_type: 5,
-      srcIp: call.localMediaIp ? call.localMediaIp : '127.0.0.1',
-      dstIp: call.remoteMediaIp ? call.remoteMediaIp : '127.0.0.1',
-      srcPort: call.localMediaPort ? call.localMediaPort : 0,
-      dstPort: call.remoteMediaPort ? call.remoteMediaPort : 0,
+      srcIp: call && call.localMediaIp ? call.localMediaIp : '127.0.0.1',
+      dstIp: call && call.remoteMediaIp ? call.remoteMediaIp : '127.0.0.1',
+      srcPort: call && call.localMediaPort ? call.localMediaPort : 0,
+      dstPort: call && call.remoteMediaPort ? call.remoteMediaPort : 0,
       correlation_id: xcid ? xcid : ''
     },
     payload: JSON.stringify({
