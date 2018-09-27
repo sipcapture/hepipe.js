@@ -167,6 +167,7 @@ var eslConnect = function (host, port, pass, callback_preHep) {
 
           if (report_call_events) {
             var message = getCallMessage(e, xcid, payload, hep_id, hep_pass);
+            var message = getCallMessage(e, xcid, JSON.stringify(e), hep_id, hep_pass);
             callback_preHep(message);
           }
         }
@@ -190,6 +191,16 @@ var eslConnect = function (host, port, pass, callback_preHep) {
           }
         }
       }
+
+      if (report_custom_events) {
+        if (e.getHeader('Event-Name') == 'CUSTOM') {
+          if (e.getHeader('Unique-ID') && e.getHeader('variable_sip_call_id')) {
+            var message = getCallMessage(e, xcid, hep_id, hep_pass);
+            callback_preHep(message);
+          }
+        }
+      }
+
     });
 };
 
