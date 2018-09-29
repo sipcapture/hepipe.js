@@ -73,7 +73,7 @@ function processJanusEvent(e) {
     if(e.type == 64) {
       // Save association Handle-ID > SIP Call-ID
       if(e.event.data['call-id']) {
-        db.set(e.handle_id, {cid: e.event.data['call-id']}, tll);
+        db.set(e.handle_id, {cid: e.event.data['call-id']}, ttl);
         xcid = e.event.data['call-id'];
       }
 
