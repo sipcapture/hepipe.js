@@ -9,13 +9,9 @@
     "receptacle": "^1.3.0"
   },
   "config": {
-    "unsafe-perm": true
+    "unsafe-perm": false
   },
   "scripts": {
-    "start": "nodejs hepipe.js",
-    "forever": "forever start -o ./log/hepipe.log -e ./log/error.log -a --minUptime 1000 --spinSleepTime 3000 ./hepipe.js",
-    "debug": "forever -l ./log/hepipe.log -o ./log/hepipe.log -e ./log/error.log --minUptime 1000 --spinSleepTime 3000 ./hepipe.js",
-    "stop": "forever stopall",
-    "preinstall": "npm install -g forever"
+    "start": "nodejs hepipe.js"
   }
 }

@@ -17,6 +17,7 @@ var db = new Receptacle({ max: 1024 });
 var report_call_events = false;
 var report_rtcp_events = false;
 var report_qos_events = false;
+var report_custom_events = false;
 var log = true;
 
 var hep_id;
@@ -34,6 +35,7 @@ module.exports = {
     report_call_events = config.report_call_events;
     report_rtcp_events = config.report_rtcp_events;
     report_qos_events = config.report_qos_events;
+    report_custom_events = config.report_custom_events;
     debug = config.debug;
     eslConnect(host, port, pass, callback_preHep);
   }
@@ -167,6 +169,7 @@ var eslConnect = function (host, port, pass, callback_preHep) {
 
           if (report_call_events) {
             var message = getCallMessage(e, xcid, payload, hep_id, hep_pass);
+            var message = getCallMessage(e, xcid, JSON.stringify(e), hep_id, hep_pass);
             callback_preHep(message);
           }
         }
@@ -190,6 +193,16 @@ var eslConnect = function (host, port, pass, callback_preHep) {
           }
         }
       }
+
+      if (report_custom_events) {
+        if (e.getHeader('Event-Name') == 'CUSTOM') {
+          if (e.getHeader('Unique-ID') && e.getHeader('variable_sip_call_id')) {
+            var message = getCallMessage(e, xcid || e.getHeader('variable_sip_call_id'), hep_id, hep_pass);
+            callback_preHep(message);
+          }
+        }
+      }
+
     });
 };
 
