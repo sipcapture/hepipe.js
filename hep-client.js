@@ -45,6 +45,7 @@ module.exports = {
     rcinfo.time_usec = datenow - (rcinfo.time_sec*1000);
 
     if (debug) console.log(rcinfo);
+    if (!msg.length || msg == "") return;
     sendHEP3(msg, rcinfo);	
   },
   getStats:function() {
