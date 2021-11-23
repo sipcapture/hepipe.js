@@ -272,7 +272,7 @@ var getQoSMessage = function (e, xcid, hep_id, hep_pass) {
     payload: JSON.stringify({
       "CORRELATION_ID": xcid ? xcid : e.getHeader('variable_sip_call_id'),
       "RTP_SIP_CALL_ID": xcid ? xcid : e.getHeader('variable_sip_call_id'),
-      "JITTER": (parseInt(e.getHeader('variable_rtp_audio_in_jitter_max_variance')) + parseInt(e.getHeader('variable_rtp_audio_in_jitter_max_variance'))) / 2,
+      "JITTER": (parseInt(e.getHeader('variable_rtp_audio_in_jitter_min_variance')) + parseInt(e.getHeader('variable_rtp_audio_in_jitter_max_variance'))) / 2,
       "REPORT_TS": parseInt(e.getHeader('Event-Date-Timestamp')),
       "TL_BYTE": parseInt(e.getHeader('variable_rtp_audio_in_media_bytes')) + parseInt(e.getHeader('variable_rtp_audio_out_media_bytes')),
       "TOTAL_PK": parseInt(e.getHeader('variable_rtp_audio_in_packet_count')) + parseInt(e.getHeader('variable_rtp_audio_out_packet_count')),
