@@ -1,7 +1,7 @@
 {
   "name": "hepipe-js",
   "description": "HEP Enabled log harvester",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "lmangani",
   "dependencies": {
     "hep-js": "^1.0.13",
