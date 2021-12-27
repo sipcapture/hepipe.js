@@ -12,7 +12,7 @@ var eslWaitTime = 60000;
 var debug = false;
 
 var Receptacle = require('receptacle');
-var db = new Receptacle({ max: 1024 });
+var db = new Receptacle({ max: 1048576 });
 
 var report_call_events = false;
 var report_rtcp_events = false;
@@ -24,6 +24,8 @@ var hep_id;
 var hep_pass;
 
 var esl = require('modesl');
+
+var ttl = { ttl: 86400000 };
 
 module.exports = {
   connect: function (config, callback_preHep) {
@@ -43,8 +45,6 @@ module.exports = {
 
 var eslConnect = function (host, port, pass, callback_preHep) {
   if (debug) console.log("host: " + host + ", port: " + port + ", pass: " + pass);
-
-  const ttl = { ttl: 600000 };
 
   eslConn = new esl.Connection(host, port, pass)
     .on("error", function (error) {
@@ -147,9 +147,8 @@ var eslConnect = function (host, port, pass, callback_preHep) {
               payload += e.getHeader('Unique-ID') + '; ';
             }
 
-            db.delete(e.getHeader('Unique-ID'), function (e) {
-              if (debug) console.log('Session UUID has been removed!');
-            });
+            db.delete(e.getHeader('Unique-ID'));
+            if (debug) console.log('Session UUID ' + e.getHeader('Unique-ID') + ' has been removed!');
           } else if (e.getHeader('Event-Name') == 'CUSTOM') {
             if (e.getHeader('Event-Subclass') === 'sofia::register') {
               payload += 'REGISTER; ';
@@ -176,8 +175,8 @@ var eslConnect = function (host, port, pass, callback_preHep) {
       }
 
       if (report_rtcp_events) {
-        if (e.getHeader('Event-Name') == 'RECV_RTCP_MESSAGE') {
-          if (e.getHeader('Source0-SSRC')) {
+        if (e.getHeader('Event-Name') == 'RECV_RTCP_MESSAGE' || e.getHeader('Event-Name') == 'SEND_RTCP_MESSAGE') {
+          if (e.getHeader('Source0-SSRC') || e.getHeader('Source-SSRC')) {
             if (debug) console.log('Processing RTCP Report...', e);
             var message = getRTCPMessage(e, xcid, hep_id, hep_pass);
             callback_preHep(message);
@@ -209,6 +208,90 @@ var eslConnect = function (host, port, pass, callback_preHep) {
 var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
   var call = db.get(e.getHeader('Unique-ID'));
 
+  if (e.getHeader('Event-Name') == 'RECV_RTCP_MESSAGE') {
+    if (!call.recvSSRC) {
+      call.recvSSRC = e.getHeader('Source0-SSRC');
+      db.set(e.getHeader('Unique-ID'),call,ttl);
+    }
+    if (!call.recvPackets) {
+      call.recvPackets = 0;
+    }
+    if (e.getHeader('Sender-Packet-Count')) {
+      packets = parseInt(e.getHeader('Sender-Packet-Count'))  - call.recvPackets;
+      call.recvPackets = parseInt(e.getHeader('Sender-Packet-Count')) ;
+      db.set(e.getHeader('Unique-ID'),call,ttl);
+    }
+    if (!call.recvOctects) {
+      call.recvOctets = 0;
+    }
+    if (e.getHeader('Octect-Packet-Count')) {
+      octets = parseInt(e.getHeader('Octect-Packet-Count'))  - call.recvOctets;
+      call.recvOctets = parseInt(e.getHeader('Octect-Packet-Count')) ;
+      db.set(e.getHeader('Unique-ID'),call,ttl);
+    }
+    if (!call.recvPacketsLost) {
+      call.recvPacketsLost = 0;
+    }
+    if (e.getHeader('Source0-Lost')) {
+      packetsLost = parseInt(e.getHeader('Source0-Lost'))  - call.recvPacketsLost;
+      call.recvPacketsLost = parseInt(e.getHeader('Source0-Lost')) ;
+      db.set(e.getHeader('Unique-ID'),call,ttl);
+    }
+    var ssrc = call.recvSSRC;
+    var srcIp = call.localMediaIp ? call.localMediaIp : '127.0.0.1';
+    var srcPort = call.localMediaPort ? call.localMediaPort : 0;
+    var dstIp = call.remoteMediaIp ? call.remoteMediaIp : '127.0.0.1';
+    var dstPort = call.remoteMediaPort ? call.remoteMediaPort : 0;
+    var fractionLost = parseInt(e.getHeader('Source0-Fraction'));
+    var packetsLost = packetsLost;
+    var highestSeqNo = parseInt(e.getHeader('Source0-Highest-Sequence-Number-Received'));
+    var lsr = parseInt(e.getHeader('Source0-LSR'));
+    var iaJitter = parseFloat(e.getHeader('Source0-Jitter'));
+    var dlsr = parseInt(e.getHeader('Source0-DLSR'));
+  }
+
+  if (e.getHeader('Event-Name') == 'SEND_RTCP_MESSAGE') {
+    if (!call.sendSSRC) {
+      call.sendSSRC = e.getHeader('SSRC');
+      db.set(e.getHeader('Unique-ID'),call,ttl);
+    }
+    if (!call.sendPackets) {
+      call.sendPackets = 0;
+    }
+    if (e.getHeader('Sender-Packet-Count')) {
+      packets = parseInt(e.getHeader('Sender-Packet-Count'))  - call.sendPackets;
+      call.sendPackets = parseInt(e.getHeader('Sender-Packet-Count')) ;
+      db.set(e.getHeader('Unique-ID'),call,ttl);
+    }
+    if (!call.sendOctects) {
+      call.sendOctets = 0;
+    }
+    if (e.getHeader('Octect-Packet-Count')) {
+      octets = parseInt(e.getHeader('Octect-Packet-Count'))  - call.sendOctets;
+      call.sendOctets = parseInt(e.getHeader('Octect-Packet-Count')) ;
+      db.set(e.getHeader('Unique-ID'),call,ttl);
+    }
+    if (!call.sendPacketsLost) {
+      call.sendPacketsLost = 0;
+    }
+    if (e.getHeader('Source-Lost')) {
+      packetsLost = parseInt(e.getHeader('Source-Lost')) - call.sendPacketsLost;
+      call.sendPacketsLost = parseInt(e.getHeader('Source-Lost')) ;
+      db.set(e.getHeader('Unique-ID'),call,ttl);
+    }
+    var ssrc = call.sendSSRC;
+    var srcIp = call.remoteMediaIp ? call.remoteMediaIp : '127.0.0.1';
+    var srcPort = call.remoteMediaPort ? call.remoteMediaPort : 0;
+    var dstIp = call.localMediaIp ? call.localMediaIp : '127.0.0.1';
+    var dstPort = call.localMediaPort ? call.localMediaPort : 0;
+    var fractionLost = parseInt(e.getHeader('Source-Fraction'));
+    var packetsLost = packetsLost;
+    var highestSeqNo = parseInt(e.getHeader('Source-Highest-Sequence-Number-Received'));
+    var lsr = parseInt(e.getHeader('Source-LSR'));
+    var iaJitter = parseFloat(e.getHeader('Source-Jitter'));
+    var dlsr = parseInt(e.getHeader('Source-DLSR'));
+  }
+
   var message = {
     rcinfo: {
       type: 'HEP',
@@ -219,31 +302,31 @@ var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
       ip_family: 2,
       protocol: 17,
       proto_type: 5,
-      srcIp: call && call.localMediaIp ? call.localMediaIp : '127.0.0.1',
-      dstIp: call && call.remoteMediaIp ? call.remoteMediaIp : '127.0.0.1',
-      srcPort: call && call.localMediaPort ? call.localMediaPort : 0,
-      dstPort: call && call.remoteMediaPort ? call.remoteMediaPort : 0,
+      srcIp: srcIp,
+      dstIp: dstIp,
+      srcPort: srcPort,
+      dstPort: dstPort,
       correlation_id: xcid ? xcid : ''
     },
     payload: JSON.stringify({
       "type": 200,
-      "ssrc": e.getHeader('SSRC'),
+      "ssrc": ssrc,
       "report_count": parseInt(e.getHeader('Event-Sequence')),
       "report_blocks": [{
-        "source_ssrc": e.getHeader('Source0-SSRC'),
-        "fraction_lost": parseInt(e.getHeader('Source0-Fraction')),
-        "packets_lost": parseInt(e.getHeader('Source0-Lost')),
-        "highest_seq_no": parseInt(e.getHeader('Source0-Highest-Sequence-Number-Received')),
-        "lsr": parseInt(e.getHeader('Source0-LSR')),
-        "ia_jitter": parseFloat(e.getHeader('Source0-Jitter')),
-        "dlsr": parseInt(e.getHeader('Source0-DLSR'))
+        "source_ssrc": ssrc,
+        "fraction_lost": fractionLost,
+        "packets_lost": packetsLost,
+        "highest_seq_no": highestSeqNo,
+        "lsr": lsr,
+        "ia_jitter": iaJitter,
+        "dlsr": dlsr
       }],
       "sender_information": {
-        "packets": parseInt(e.getHeader('Sender-Packet-Count')),
+        "packets": packets,
         "ntp_timestamp_sec": parseInt(e.getHeader('NTP-Most-Significant-Word')),
         "ntp_timestamp_usec": parseInt(e.getHeader('NTP-Least-Significant-Word')),
         "rtp_timestamp": parseInt(e.getHeader('RTP-Timestamp')),
-        "octets": parseInt(e.getHeader('Octect-Packet-Count'))
+        "octets": octets
       }
     })
   };
