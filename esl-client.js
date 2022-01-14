@@ -248,6 +248,8 @@ var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
     var lsr = parseInt(e.getHeader('Source0-LSR'));
     var iaJitter = parseFloat(e.getHeader('Source0-Jitter'));
     var dlsr = parseInt(e.getHeader('Source0-DLSR'));
+    var msjitter = parseFloat(e.getHeader('Source0-Jitter')) / parseInt(e.getHeader('RTP-Rate')); // convert rtp jitter units into seconds
+    msjitter = msjitter * 1000; // convert seconds to milliseconds
   }
 
   if (e.getHeader('Event-Name') == 'SEND_RTCP_MESSAGE') {
@@ -319,7 +321,8 @@ var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
         "highest_seq_no": highestSeqNo,
         "lsr": lsr,
         "ia_jitter": iaJitter,
-        "dlsr": dlsr
+        "dlsr": dlsr,
+	"ms_jitter": msjitter
       }],
       "sender_information": {
         "packets": packets,
