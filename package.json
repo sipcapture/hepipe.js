@@ -6,7 +6,7 @@
   "dependencies": {
     "hep-js": "^1.0.13",
     "modesl": "^1.2.0",
-    "receptacle": "^1.3.0"
+    "receptacle": "^1.3.2"
   },
   "config": {
     "unsafe-perm": false
