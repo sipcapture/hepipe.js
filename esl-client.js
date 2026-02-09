@@ -208,6 +208,13 @@ var eslConnect = function (host, port, pass, callback_preHep) {
 var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
   var call = db.get(e.getHeader('Unique-ID'));
 
+  // If call not found in cache, create empty object
+  if (!call) {
+    call = {
+      cid: xcid || e.getHeader('variable_sip_call_id')
+    };
+  }
+
   if (e.getHeader('Event-Name') == 'RECV_RTCP_MESSAGE') {
     if (!call.recvSSRC) {
       call.recvSSRC = e.getHeader('Source0-SSRC');
@@ -239,9 +246,9 @@ var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
     }
     var ssrc = call.recvSSRC;
     var srcIp = call.localMediaIp ? call.localMediaIp : '127.0.0.1';
-    var srcPort = call.localMediaPort ? call.localMediaPort : 0;
+    var srcPort = call.localMediaPort ? parseInt(call.localMediaPort) : 0;
     var dstIp = call.remoteMediaIp ? call.remoteMediaIp : '127.0.0.1';
-    var dstPort = call.remoteMediaPort ? call.remoteMediaPort : 0;
+    var dstPort = call.remoteMediaPort ? parseInt(call.remoteMediaPort) : 0;
     var fractionLost = parseInt(e.getHeader('Source0-Fraction'));
     var packetsLost = packetsLost;
     var highestSeqNo = parseInt(e.getHeader('Source0-Highest-Sequence-Number-Received'));
@@ -281,9 +288,9 @@ var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
     }
     var ssrc = call.sendSSRC;
     var srcIp = call.remoteMediaIp ? call.remoteMediaIp : '127.0.0.1';
-    var srcPort = call.remoteMediaPort ? call.remoteMediaPort : 0;
+    var srcPort = call.remoteMediaPort ? parseInt(call.remoteMediaPort) : 0;
     var dstIp = call.localMediaIp ? call.localMediaIp : '127.0.0.1';
-    var dstPort = call.localMediaPort ? call.localMediaPort : 0;
+    var dstPort = call.localMediaPort ? parseInt(call.localMediaPort) : 0;
     var fractionLost = parseInt(e.getHeader('Source-Fraction'));
     var packetsLost = packetsLost;
     var highestSeqNo = parseInt(e.getHeader('Source-Highest-Sequence-Number-Received'));

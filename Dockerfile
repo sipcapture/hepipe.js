@@ -1,8 +1,7 @@
-FROM nodesource/node:4.0
+FROM node:24-alpine
 
-WORKDIR /usr/src/app/
-RUN mkdir hepipe.js
-WORKDIR /usr/src/app/hepipe.js
+WORKDIR /app
+
 COPY hepipe.js .
 COPY hep-client.js .
 COPY log-client.js .
@@ -14,4 +13,4 @@ RUN npm install
 
 # config.js will be passed as volume
 
-CMD ["/usr/bin/node", "hepipe.js"]
+CMD ["node", "hepipe.js"]

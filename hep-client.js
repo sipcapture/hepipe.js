@@ -35,18 +35,25 @@ module.exports = {
   preHep:function(message) {
     var rcinfo = message.rcinfo;
     var msg = message.payload;
-    if (rcinfo.correlation_id == null || !(rcinfo.correlation_id.toString().length)) return;
+
+    // Set timestamps - hep-js expects timeSeconds/timeUseconds, not time_sec/time_usec
+    var datenow = new Date().getTime();
+    rcinfo.timeSeconds = Math.floor( datenow / 1000);
+    rcinfo.timeUseconds = (datenow % 1000) * 1000;
+
+    // Map proto_type to payloadType for hep-js library
+    if (rcinfo.proto_type !== undefined) {
+      rcinfo.payloadType = rcinfo.proto_type;
+    }
+
+    // Allow packets without correlation_id (e.g., RTCP packets)
+    // if (rcinfo.correlation_id == null || !(rcinfo.correlation_id.toString().length)) return;
     if (debug) console.log(msg);
     stats.rcvd++;
 
-    var hrTime = process.hrtime();
-    var datenow = new Date().getTime();
-    rcinfo.time_sec = Math.floor( datenow / 1000);
-    rcinfo.time_usec = datenow - (rcinfo.time_sec*1000);
-
     if (debug) console.log(rcinfo);
     if (!msg.length || msg == "") return;
-    sendHEP3(msg, rcinfo);	
+    sendHEP3(msg, rcinfo);
   },
   getStats:function() {
     return stats;
@@ -86,7 +93,7 @@ var sendHEP3 = function(msg,rcinfo){
           stats.hepsent++;
         });
       } else { console.log('HEP Parsing error!'); stats.heperr++; }
-    } 
+    }
     catch (e) {
       console.log('HEP3 Error sending!');
       console.log(e);

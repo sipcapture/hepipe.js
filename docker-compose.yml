@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  hepipe:
+    build: .
+    container_name: hepipe-freeswitch
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./config_freeswitch_rtcp.js:/app/config.js:ro
+    environment:
+      - NODE_ENV=production
+    command: node hepipe.js
