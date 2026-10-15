@@ -36,10 +36,20 @@ module.exports = {
     var rcinfo = message.rcinfo;
     var msg = message.payload;
 
-    // Set timestamps - hep-js expects timeSeconds/timeUseconds, not time_sec/time_usec
-    var datenow = new Date().getTime();
-    rcinfo.timeSeconds = Math.floor( datenow / 1000);
-    rcinfo.timeUseconds = (datenow % 1000) * 1000;
+    // Preserve timestamps from the producer (e.g. log lines); default to now.
+    if (rcinfo.timeSeconds == null && rcinfo.time_sec != null) {
+      rcinfo.timeSeconds = rcinfo.time_sec;
+    }
+    if (rcinfo.timeUseconds == null && rcinfo.time_usec != null) {
+      rcinfo.timeUseconds = rcinfo.time_usec;
+    }
+    if (rcinfo.timeSeconds == null) {
+      var datenow = new Date().getTime();
+      rcinfo.timeSeconds = Math.floor(datenow / 1000);
+      rcinfo.timeUseconds = (datenow % 1000) * 1000;
+    } else if (rcinfo.timeUseconds == null) {
+      rcinfo.timeUseconds = 0;
+    }
 
     // Map proto_type to payloadType for hep-js library
     if (rcinfo.proto_type !== undefined) {

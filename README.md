@@ -23,6 +23,12 @@ Prepare with:
 
 Fill config.js as needed (please see `examples/`)
 
+### HEP_ID and HEP_PASS
+
+These must match a **capture agent** defined in Homer (Settings → Agents): `HEP_ID` is the agent ID Homer expects on incoming HEP packets, and `HEP_PASS` is that agent's password. They are not configured inside FreeSWITCH. If packets reach Homer but nothing appears in the UI, verify the agent ID/password pair and that the search time range includes the event timestamps.
+
+Requires **Node.js 14+** (see `package.json` `engines`).
+
 Run with:
 
 `sudo node hepipe.js`
