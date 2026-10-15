@@ -102,7 +102,7 @@ var eslConnect = function (host, port, pass, callback_preHep) {
               localMediaPort: e.getHeader('variable_local_media_port'),
               remoteMediaPort: e.getHeader('variable_remote_media_port')
             };
-            if (debug) console.log(`CHANNEL_PROGRESS_MEDIA SETTING CACHE FOR ${key} TO ${JSON.stringify(details)}`);
+            if (debug) console.log('CHANNEL_PROGRESS_MEDIA SETTING CACHE FOR ' + key + ' TO ' + JSON.stringify(details));
             db.set(key, details, ttl);
           } else if (e.getHeader('Event-Name') == 'CHANNEL_BRIDGE') {
             var key = e.getHeader('Unique-ID');
@@ -113,7 +113,7 @@ var eslConnect = function (host, port, pass, callback_preHep) {
               localMediaPort: e.getHeader('variable_local_media_port'),
               remoteMediaPort: e.getHeader('variable_remote_media_port')
             };
-            if (debug) console.log(`CHANNEL_BRIDGE SETTING CACHE FOR ${key} TO ${JSON.stringify(details)}`);
+            if (debug) console.log('CHANNEL_BRIDGE SETTING CACHE FOR ' + key + ' TO ' + JSON.stringify(details));
             db.set(key, details, ttl);
           } else if (e.getHeader('Event-Name') == 'CHANNEL_ANSWER') {
             if (e.getHeader('Call-Direction') == 'inbound') {
@@ -134,7 +134,7 @@ var eslConnect = function (host, port, pass, callback_preHep) {
               localMediaPort: e.getHeader('variable_local_media_port'),
               remoteMediaPort: e.getHeader('variable_remote_media_port')
             };
-            if (debug) console.log(`CHANNEL_ANSWER SETTING CACHE FOR ${key} TO ${JSON.stringify(details)}`);
+            if (debug) console.log('CHANNEL_ANSWER SETTING CACHE FOR ' + key + ' TO ' + JSON.stringify(details));
             db.set(key, details, ttl);
           } else if (e.getHeader('Event-Name') == 'CHANNEL_DESTROY') {
             if (e.getHeader('Call-Direction') == 'inbound') {
@@ -205,8 +205,28 @@ var eslConnect = function (host, port, pass, callback_preHep) {
     });
 };
 
+var getCachedCall = function (e) {
+  var uniqueId = e.getHeader('Unique-ID');
+  var call = uniqueId ? db.get(uniqueId) : null;
+  if (!call && e.getHeader('Other-Leg-Unique-ID')) {
+    call = db.get(e.getHeader('Other-Leg-Unique-ID'));
+  }
+  return call;
+};
+
+var getMediaEndpoints = function (e, call) {
+  call = call || {};
+  return {
+    localMediaIp: call.localMediaIp || e.getHeader('variable_local_media_ip') || e.getHeader('variable_advertised_media_ip') || e.getHeader('FreeSWITCH-IPv4'),
+    remoteMediaIp: call.remoteMediaIp || e.getHeader('variable_remote_media_ip') || e.getHeader('variable_remote_audio_ip_reported') || e.getHeader('variable_remote_media_ip_reported'),
+    localMediaPort: call.localMediaPort || e.getHeader('variable_local_media_port'),
+    remoteMediaPort: call.remoteMediaPort || e.getHeader('variable_remote_media_port') || e.getHeader('variable_remote_media_port_reported')
+  };
+};
+
 var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
-  var call = db.get(e.getHeader('Unique-ID'));
+  var call = getCachedCall(e);
+  var media = getMediaEndpoints(e, call);
 
   // If call not found in cache, create empty object
   if (!call) {
@@ -245,10 +265,10 @@ var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
       db.set(e.getHeader('Unique-ID'),call,ttl);
     }
     var ssrc = call.recvSSRC;
-    var srcIp = call.localMediaIp ? call.localMediaIp : '127.0.0.1';
-    var srcPort = call.localMediaPort ? parseInt(call.localMediaPort) : 0;
-    var dstIp = call.remoteMediaIp ? call.remoteMediaIp : '127.0.0.1';
-    var dstPort = call.remoteMediaPort ? parseInt(call.remoteMediaPort) : 0;
+    var srcIp = media.localMediaIp ? media.localMediaIp : '127.0.0.1';
+    var srcPort = media.localMediaPort ? parseInt(media.localMediaPort, 10) : 0;
+    var dstIp = media.remoteMediaIp ? media.remoteMediaIp : '127.0.0.1';
+    var dstPort = media.remoteMediaPort ? parseInt(media.remoteMediaPort, 10) : 0;
     var fractionLost = parseInt(e.getHeader('Source0-Fraction'));
     var packetsLost = packetsLost;
     var highestSeqNo = parseInt(e.getHeader('Source0-Highest-Sequence-Number-Received'));
@@ -287,10 +307,10 @@ var getRTCPMessage = function (e, xcid, hep_id, hep_pass) {
       db.set(e.getHeader('Unique-ID'),call,ttl);
     }
     var ssrc = call.sendSSRC;
-    var srcIp = call.remoteMediaIp ? call.remoteMediaIp : '127.0.0.1';
-    var srcPort = call.remoteMediaPort ? parseInt(call.remoteMediaPort) : 0;
-    var dstIp = call.localMediaIp ? call.localMediaIp : '127.0.0.1';
-    var dstPort = call.localMediaPort ? parseInt(call.localMediaPort) : 0;
+    var srcIp = media.remoteMediaIp ? media.remoteMediaIp : '127.0.0.1';
+    var srcPort = media.remoteMediaPort ? parseInt(media.remoteMediaPort, 10) : 0;
+    var dstIp = media.localMediaIp ? media.localMediaIp : '127.0.0.1';
+    var dstPort = media.localMediaPort ? parseInt(media.localMediaPort, 10) : 0;
     var fractionLost = parseInt(e.getHeader('Source-Fraction'));
     var packetsLost = packetsLost;
     var highestSeqNo = parseInt(e.getHeader('Source-Highest-Sequence-Number-Received'));

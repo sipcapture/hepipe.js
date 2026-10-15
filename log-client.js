@@ -65,12 +65,34 @@ function watchFile(logSet){
   }, 1000);
 }
 
+// FreeSWITCH default log prefix: YYYY-MM-DD HH:MM:SS.microseconds
+var FS_LOG_TIMESTAMP = /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(?:\.(\d+))?/;
+
+function parseLogLineTimestamp(line) {
+  var match = line.match(FS_LOG_TIMESTAMP);
+  if (!match) {
+    return null;
+  }
+  var parsed = new Date(match[1].replace(' ', 'T'));
+  if (isNaN(parsed.getTime())) {
+    return null;
+  }
+  if (match[2]) {
+    var fraction = match[2];
+    var ms = parseInt(fraction.substring(0, 3).padEnd(3, '0'), 10);
+    parsed.setMilliseconds(ms);
+  }
+  var ts = parsed.getTime();
+  return {
+    timeSeconds: Math.floor(ts / 1000),
+    timeUseconds: (ts % 1000) * 1000
+  };
+}
+
 function readChanges(logSet, patternList, from, to){
   var file = logSet.path;
-  var tag = logSet.tag;
   var host = logSet.host;
-  var pattern = logSet.pattern;
-  
+
   var rstream = fs.createReadStream(file, {
     encoding: 'utf8',
     start: from,
@@ -78,44 +100,43 @@ function readChanges(logSet, patternList, from, to){
   });
 
   rstream.on('data', function(chunk) {
-    var last = "";
-    data = chunk.trim();
     var lines, i, j;
 
-    lines = (last+chunk).split("\n");
-    for(i = 0; i < lines.length - 1; i++) {
-      var datenow =  new Date().getTime();
-//      stats.rcvd++;
+    lines = chunk.split("\n");
+    for (i = 0; i < lines.length - 1; i++) {
       for (j = 0; j < patternList.length; j++) {
-        var cid = (lines[i]).match(patternList[j]);
-        if (cid != undefined && cid[1] != undefined ) {
-//        stats.parsed++;
-          var message = prepareMessage(tag, lines[i], cid[1], host, datenow);
+        var cid = lines[i].match(patternList[j]);
+        if (cid != undefined && cid[1] != undefined) {
+          var message = prepareMessage(lines[i], cid[1], host);
           preHep(message);
-	  break;
+          break;
         }
       }
     }
-  }); 
+  });
 }
 
-function prepareMessage(tag, data, cid, host, datenow) {
+function prepareMessage(data, cid, host) {
   if (debug) console.log('CID: ' + cid + ' DATA:' + data);
 
-  var t_sec = Math.floor(datenow / 1000);
+  var timestamps = parseLogLineTimestamp(data);
+  var datenow = new Date().getTime();
+  var timeSeconds = timestamps ? timestamps.timeSeconds : Math.floor(datenow / 1000);
+  var timeUseconds = timestamps ? timestamps.timeUseconds : (datenow % 1000) * 1000;
+  var logHost = host || '127.0.0.1';
 
   var message = {
     rcinfo: {
       type: 'HEP',
       version: 3,
-      payload_type: 100,
-      time_sec: t_sec,
-      time_usec: (datenow - (t_sec*1000))*1000,
+      payload_type: 'JSON',
+      timeSeconds: timeSeconds,
+      timeUseconds: timeUseconds,
       ip_family: 2,
       protocol: 6,
       proto_type: 100,
-      srcIp: '127.0.0.1',
-      dstIp: '127.0.0.1',
+      srcIp: logHost,
+      dstIp: logHost,
       srcPort: 0,
       dstPort: 0,
       captureId: hep_id,
